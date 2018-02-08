@@ -1,25 +1,28 @@
 <template>
-    <div id="app" class="full-height">
+    <div id="app" class="page-full-height flex-container-desktop flex-container-vertical">
         <div id="nav" class="flex-container">
             <div id="nav-logo">
-                <span>SPEED TRIALS LOGO</span>
-            </div>
+                <router-link to="/">
+                    <span>SPEED TRIALS</span>
+                </router-link>
+             </div>
+
             <div class="nav-mobile-separator"></div>
             <div id="nav-links" class="flex-container">
-                <router-link to="/">Home</router-link>
+                <router-link to="/create">Create</router-link>
                 <router-link to="/join">Join</router-link>
 
                 <div class="nav-player-container" v-if="getPlayerName">
                     <div class="nav-mobile-separator"></div>
                     <div class="nav-separator"></div>
-                    <div class="flex-container flex-container-vertical nav-player-name-display">
-                        <span v-on:click="resetName" 
+                    <div class="flex-container flex-container-vertical nav-player-name-display"
                         v-on:mouseover="showReset = true"
                         v-on:mouseleave="showReset = false">
+                        <span v-on:click="resetName">
                         {{ getPlayerName }}
                         </span>
                         <span class="nav-player-reset-text" v-show="showReset">
-                            Reset
+                            Click to reset
                         </span>
                     </div>
                 </div>
@@ -37,12 +40,8 @@
                 <router-link to="/history">History</router-link>
             </div>
         </div>
-        <div v-if="getPlayerName">
-            <router-view class="content flex-container flex-container-vertical"></router-view>
-        </div>
-        <div v-else>
-            <PlayerNameInput class="content"></PlayerNameInput>
-        </div>
+        <router-view v-if="getPlayerName" class="content"></router-view>
+        <PlayerNameInput v-else class="content"></PlayerNameInput>
         
     </div>
 </template>
@@ -101,63 +100,11 @@ export default class App extends Vue {}
 
 /* General-use helpers */
 
-.full-height {
-    height: 100%;
-}
-
-.flex-item {
-    flex: 1;
-}
-
-.flex-container {
-    display: flex;
-}
-
-.flex-container-vertical {
-    flex-direction: column;
-}
-
-.flex-align-center {
-    align-items: center;
-}
-
-/* Page wide settings */
-
-body, html {
-    margin: 0;
-    height: 100%;
-}
-
-#app {
-    font-family: 'Avenir', Helvetica, Arial, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    font-size: 14px;
-    color: $common-text-color;
-    background-color: $common-background-color;
-}
-
-/* Page content styling */
-
-.content {
-    padding-top: 1em;
-    padding-bottom: 1em;
-    padding-left: 1em;
-    padding-right: 1em;
-}
-
-@media (min-width: $mobile) {
-    .content {
-        padding-left: 3em;
-        padding-right: 3em;
-    }
-}
-
 /* Navbar styling */
 
 // Mobile navbar is a column
 #nav {
-    font-size: 18px;
+    font-size: 20px;
 
     padding: 20px;
     cursor: default;
@@ -178,15 +125,23 @@ body, html {
 // Navbar link styles
 #nav a {
     color: $common-text-color-dark;
-    font-size: 18px;
+    font-size: 20px;
     //font-weight: bold;
     text-decoration: none;
     cursor: pointer;
     padding: 0.7em;
+    white-space: nowrap;
 
     // Desktop navbar links should be fixed width blocks
     @media (min-width: $mobile) {
         width: 5em;
+        text-align: center;
+    }
+}
+
+#nav #nav-logo a {
+    @media (min-width: $mobile) {
+        width: auto;
         text-align: center;
     }
 }

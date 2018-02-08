@@ -1,7 +1,10 @@
 <template>
     <div class="player-name-input">
         <h1>Enter your display name:</h1>
-        <input type="text" v-on:keyup.enter="onSubmit" v-model="playerName">
+        <input class="text-input" 
+               type="text" 
+               v-on:keyup.enter="onSubmit" 
+               v-model="playerName">
         <button v-on:click="onSubmit">Submit</button>
     </div>
 </template>
