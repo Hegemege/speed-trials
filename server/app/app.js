@@ -1,20 +1,55 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const low = require("lowdb");
 const FileAsync = require("lowdb/adapters/FileAsync");
 const fs = require("fs");
 const path = require("path");
 const uuidv4 = require('uuid/v4');
 const cors = require('cors')
 
+const Datastore = require("nedb");
+const dbDefaults = require("./dbDefaults");
+
+class Trial {
+    constructor(name, joinCode, host) {
+        this.name = name;
+        this.joinCode = joinCode;
+        this.host = host;
+        this.players = [host];
+        this.mapPool = [];
+    }
+}
 
 module.exports = function() {
     const app = express();
     app.use(bodyParser.json());
     app.use(cors());
 
-    // Create database instance and start server
-    const adapter = new FileAsync(path.resolve(__dirname, "db.json"));
+    // All DBs
+    const mapPools = new Datastore({ filename: path.join(__dirname, "/db/mappools.db"), autoload: true });
+    const trials = new Datastore({ filename: path.join(__dirname, "/db/mappools.db"), autoload: true})
+
+    // Check for DB initialization with default values
+    // If DB contains no records, initialize with dbDefaults.mapPools
+    mapPools.find({ }, (err, docs) => {
+        if (err) {
+            console.log("Could not test mappools.db for initialized values: " + err);
+            return;
+        }
+
+        if (docs.length === 0) {
+            mapPools.insert(dbDefaults.mapPools, (err, docs) => {
+                if (err) {
+                    console.log("Could not insert default mapPools into mappools.db: " + err);
+                    return;
+                }
+
+                console.log("mappools.db successfully initialized with default values.")
+            });
+            return;
+        }
+
+        console.log("Skipping mappools.db initialization.");
+    });
 
     // API routes
 
@@ -24,15 +59,10 @@ module.exports = function() {
         res.status(200).send({ message: "success" });
     });
 
-
     // API routes that touch the DB
-    low(adapter)
-        .then(db => {
-            // define routes that need db connection
-
-            // Set db default values
-            return db.defaults({ todo: [] }).write();
-        });
+    app.post("/api/create-match", function(req, res) {
+                
+    });
 
     return app;
 };

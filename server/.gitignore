@@ -9,3 +9,4 @@ keys
 .s3cfg
 s3
 db.json
+*.db

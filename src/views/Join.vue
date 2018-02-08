@@ -1,7 +1,7 @@
 <template>
     <div class="join">
         <h1>Join a match</h1>
-        <p>Input below a code the match host has given you, or open the link they shared with you.</p>
+        <p>Type below the code a match host has given you, or open the link they shared with you.</p>
         <div class="flex-container-vertical">
             <div class="centered">
                 <input class="digit-input half-input" 
