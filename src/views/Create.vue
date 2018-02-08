@@ -29,7 +29,11 @@ import ApiService from "@/api-service";
     },
     methods: {
         createMatch() {
-            console.log(this.$data.service.ApiURL);
+            //let body = 
+            this.$data["service"].createMatch()
+                .then((result: boolean) => {
+                    console.log("Match created", result);
+                });
         },
     },
 })

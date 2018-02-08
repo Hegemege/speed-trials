@@ -1,6 +1,5 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const FileAsync = require("lowdb/adapters/FileAsync");
 const fs = require("fs");
 const path = require("path");
 const uuidv4 = require('uuid/v4');
@@ -61,7 +60,8 @@ module.exports = function() {
 
     // API routes that touch the DB
     app.post("/api/create-match", function(req, res) {
-                
+        console.log(req.body);
+        res.status(200).send({ message: "success" });
     });
 
     return app;
