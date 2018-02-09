@@ -7,8 +7,9 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
     state: {
-        "playerName": "",
-
+        playerName: "",
+        hasBadge: false,
+        
     },
     mutations: {
         setPlayerName(state, name) {

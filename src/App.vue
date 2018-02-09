@@ -12,14 +12,14 @@
                 <router-link to="/create">Create</router-link>
                 <router-link to="/join">Join</router-link>
 
-                <div class="nav-player-container" v-if="getPlayerName">
+                <div class="nav-player-container" v-if="playerName">
                     <div class="nav-mobile-separator"></div>
                     <div class="nav-separator"></div>
                     <div class="flex-container flex-container-vertical nav-player-name-display"
                         v-on:mouseover="showReset = true"
                         v-on:mouseleave="showReset = false">
                         <span v-on:click="resetName">
-                        {{ getPlayerName }}
+                        {{ playerName }}
                         </span>
                         <span class="nav-player-reset-text" v-show="showReset">
                             Click to reset
@@ -40,9 +40,9 @@
                 <router-link to="/history">History</router-link>
             </div>
         </div>
-        <router-view v-if="getPlayerName" class="content"></router-view>
+        <router-view v-if="playerName" class="content"></router-view>
         <PlayerNameInput v-else class="content"></PlayerNameInput>
-        
+        <cookie-law theme="blood-orange"></cookie-law>
     </div>
 </template>
 
@@ -54,42 +54,54 @@ import { Component, Vue } from "vue-property-decorator";
 import PlayerNameInput from "@/components/player-name-input.vue";
 import GlobalHelpers from "@/mixins.ts";
 
+import CookieLaw from "vue-cookie-law";
+
 @Component({
     components: {   
-        PlayerNameInput
-    },
-    computed: {
-        registeredTrials() {
-            return ["Trial 1", "Trial 2", "Trial 3"];
-        },
-        getPlayerName() {
-            return this.$store.state["playerName"];
-        },
-    },
-    data: function() {
-        return {
-            showReset: false,
-        }
-    },
-    methods: {
-        exactTrialActive(trial: string) {
-            return this.$route.query["name"] === trial;
-        },
-        resetName() {
-            this.$data.showReset = false;
-            this.$store.dispatch("setPlayerName", "");
-        }
-    },
-    created: function() {
+        PlayerNameInput,
+        // This will display an error in editors because it can't find the custom typings shim in vue-cookie-law.d.ts in this project's root. Building works, though
+        CookieLaw 
+    }
+})
+export default class App extends Vue {
+    showReset: boolean = false;
+
+    // Computed 
+    get registeredTrials() {
+        return ["Trial 1", "Trial 2", "Trial 3"];
+    }
+
+    get playerName() {
+        return this.$store.state.playerName;
+    }
+
+    get hasTwitchBadge() {
+        let playerName = this.$store.state.playerName;
+        if (!playerName) return false;
+
+        return this.$store.state.hasBadge;
+    }
+
+    // Lifecycle hooks
+    created() {
         if (GlobalHelpers.methods.isLocalStorageSupported()) {
             let playerName = localStorage.getItem("playerName");
             if (playerName) {
                 this.$store.commit("setPlayerName", playerName);
             }
         }
-    },
-})
-export default class App extends Vue {}
+    }
+
+    // Methods
+    exactTrialActive(trial: string) {
+        return this.$route.query["name"] === trial;
+    }
+
+    resetName() {
+        this.$data.showReset = false;
+        this.$store.dispatch("setPlayerName", "");
+    }
+}
 </script>
 
 

@@ -10,3 +10,6 @@ keys
 s3
 db.json
 *.db
+secrets.js
+public
+dist
