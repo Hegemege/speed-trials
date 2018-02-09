@@ -1,11 +1,14 @@
 <template>
     <div class="player-name-input">
-        <h1>Enter your display name:</h1>
-        <input class="text-input" 
+        <h2>As guest</h2>
+        <input class="large-centered-input constant-input" 
                type="text" 
                v-on:keyup.enter="onSubmit" 
                v-model="playerName">
-        <button v-on:click="onSubmit">Submit</button>
+        <button v-on:click="onSubmit"
+                class="custom-button constant-button">
+                Submit
+        </button>
     </div>
 </template>
 
@@ -33,5 +36,10 @@ export default class PlayerNameInput extends Vue {}
 </script>
 
 <style scoped>
+
+.player-name-input {
+    display: flex;
+    flex-direction: column;
+}
 
 </style>

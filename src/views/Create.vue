@@ -16,26 +16,17 @@ import { Component, Vue } from "vue-property-decorator";
 import ApiService from "@/api-service";
 
 @Component({
-    components: {
 
-    },
-    computed: {
-
-    },
-    data: function() {
-        return {
-            service: new ApiService(),
-        };
-    },
-    methods: {
-        createMatch() {
-            //let body = 
-            this.$data["service"].createMatch()
-                .then((result: boolean) => {
-                    console.log("Match created", result);
-                });
-        },
-    },
 })
-export default class Create extends Vue {}
+export default class Create extends Vue {
+    private service: ApiService = new ApiService();
+
+    createMatch() {
+        //let body = 
+        this.$data.service.createMatch()
+            .then((result: boolean) => {
+                console.log("Match created", result);
+            });
+    }
+}
 </script>

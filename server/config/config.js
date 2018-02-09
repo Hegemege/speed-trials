@@ -43,11 +43,11 @@ module.exports = {
         // Twitch integration
         twitchClientId: "6ef9r2564g08s6637v92i095zy142c",
         twitchClientSecret: secrets["dev"]["twitchClientSecret"],
-        twitchClientCallbackUri: "http://localhost:8081",
-        twitchScope: "",
+        twitchClientCallbackUri: "http://localhost:8081/auth/twitch/callback",
+        twitchScope: "user_read",
 
-        // Cookie secret
-        cookieSecret: secrets["dev"]["cookieSecret"],
+        // Session secret
+        sessionSecret: secrets["dev"]["sessionSecret"],
 
         // Server
         SERVER_PORT: 8081,
@@ -59,10 +59,10 @@ module.exports = {
         twitchClientId: "6ef9r2564g08s6637v92i095zy142c",
         twitchClientSecret: secrets["production"]["twitchClientSecret"],
         twitchClientCallbackUri: "TODO",
-        twitchScope: "",
+        twitchScope: "user_read",
 
         // Cookie secret
-        cookieSecret: secrets["production"]["cookieSecret"],
+        sessionSecret: secrets["production"]["sessionSecret"],
 
         // Server
         SERVER_PORT: process.env.PORT || 8080,

@@ -18,6 +18,8 @@ $common-background-color-light: #40576d;
 $mobile: 70em;
 $desktop-small: 100em;
 
+$input-width-desktop: 400px;
+
 
 /* Site-wide CSS */
 
@@ -107,8 +109,8 @@ body, html {
 
 @media (min-width: $mobile) {
     .content {
-        padding-left: 3em;
-        padding-right: 3em;
+        padding-left: 5em;
+        padding-right: 5em;
     }
 }
 
@@ -149,13 +151,21 @@ button {
     &.half-button {
         width: 50%;
     }
+
+    &.constant-button {
+        width: 100%;
+        @media (min-width: $mobile) {
+            width: $input-width-desktop;
+        }
+    }
 }
 
 input[type="text"] {
-    &.digit-input {
-        border: 1px solid $common-text-color-dark;
-        background-color: $common-background-color-dark;
-        color: $common-text-color;
+    border: 1px solid $common-text-color-dark;
+    background-color: $common-background-color-dark;
+    color: $common-text-color;
+
+    &.large-centered-input {
         font-size: 30px;
         height: 2em;
         margin-bottom: 10px;
@@ -172,5 +182,12 @@ input[type="text"] {
 
     &.half-input {
         width: 50%;
+    }
+
+    &.constant-input {
+        width: 100%;
+        @media (min-width: $mobile) {
+            width: $input-width-desktop;
+        }
     }
 }

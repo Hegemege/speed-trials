@@ -41,7 +41,13 @@
             </div>
         </div>
         <router-view v-if="playerName" class="content"></router-view>
-        <PlayerNameInput v-else class="content"></PlayerNameInput>
+        <div v-else class="content">
+            <h1>Login</h1>
+            <PlayerNameInput></PlayerNameInput>
+            <p>or</p>
+            <TwitchLogin></TwitchLogin>
+        </div>
+        
         <cookie-law theme="blood-orange"></cookie-law>
     </div>
 </template>
@@ -52,6 +58,7 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import PlayerNameInput from "@/components/player-name-input.vue";
+import TwitchLogin from "@/components/twitch-login.vue";
 import GlobalHelpers from "@/mixins.ts";
 
 import CookieLaw from "vue-cookie-law";
@@ -59,6 +66,7 @@ import CookieLaw from "vue-cookie-law";
 @Component({
     components: {   
         PlayerNameInput,
+        TwitchLogin,
         // This will display an error in editors because it can't find the custom typings shim in vue-cookie-law.d.ts in this project's root. Building works, though
         CookieLaw 
     }

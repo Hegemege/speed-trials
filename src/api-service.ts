@@ -1,10 +1,10 @@
 import axios from "axios";
 
-import { apiHost } from "./config";
+import { serverHost } from "./config";
 
 export default class ApiService {
-    public apiURL: string = apiHost;
-
+    public serverURL: string = serverHost;
+    public apiURL: string = serverHost + "/api";
     /**
      * Returns a boolean whether the creation was succesfull or not.
      * @param body 
@@ -15,7 +15,7 @@ export default class ApiService {
             console.log("Create match success");
             return true;
         }).catch(error => {
-            console.log("Error while creating match");
+            console.error("Error while creating match:", error);
             return false;
         });
     }

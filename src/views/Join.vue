@@ -4,7 +4,7 @@
         <p>Type below the code a match host has given you, or open the link they shared with you.</p>
         <div class="flex-container-vertical">
             <div class="centered">
-                <input class="digit-input half-input" 
+                <input class="large-centered-input half-input" 
                        type="text" 
                        v-on:keyup.enter="joinMatch" 
                        v-model="codeInput">
@@ -25,22 +25,13 @@
 import { Component, Vue } from "vue-property-decorator";
 
 @Component({
-    components: {
 
-    },
-    computed: {
-
-    },
-    data: function() {
-        return {
-            codeInput: "",
-        };
-    },
-    methods: {
-        joinMatch() {
-            console.log("Join match");
-        }
-    },
 })
-export default class Join extends Vue {}
+export default class Join extends Vue {
+    codeInput: string = "";
+
+    joinMatch() {
+        console.log("Join match");
+    }
+}
 </script>

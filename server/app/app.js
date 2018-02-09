@@ -1,38 +1,25 @@
-const express = require("express");
-const bodyParser = require("body-parser");
-const fs = require("fs");
-const path = require("path");
-const uuidv4 = require('uuid/v4');
-const cors = require('cors')
-
-// DB
-const Datastore = require("nedb");
-const dbDefaults = require("./dbDefaults");
-
-// Config
-const config = require("../config/config");
+var express = require("express");
+var bodyParser = require("body-parser");
+var fs = require("fs");
+var path = require("path");
+var uuidv4 = require('uuid/v4');
+var cors = require('cors')
 
 // Auth
-const passport = require("passport");
-const twitchStrategy = require("passport-twitch").Strategy;
+var session = require('express-session');
+var passport = require('passport');
+var OAuth2Strategy = require('passport-oauth').OAuth2Strategy;
+var request = require('request');
 
-const cookieParser = require("cookie-parser");
-const cookieSession = require("cookie-session");
+// DB
+var Datastore = require("nedb");
+var dbDefaults = require("./dbDefaults");
 
-// Passport config for Twitch authentication
-passport.use(new twitchStrategy({
-    clientID: config[config.ENV].twitchClientId,
-    clientSecret: config[config.ENV].twitchClientSecret,
-    callbackURL: config[config.ENV].twitchCallbackUri,
-    scope: config[config.ENV].twitchScope
-    },
-    function(accessToken, refreshToken, profile, done) {
-        User.findOrCreate({ twitchId: profile.id }, function (err, user) {
-            console.log(accessToken, refreshToken, profile, done, err, user);
-            return done(err, user);
-        });
-    }
-));
+// Config
+var config = require("../config/config");
+
+var cookieParser = require("cookie-parser");
+var cookieSession = require("cookie-session");
 
 // Object definitions
 class Trial {
@@ -48,25 +35,78 @@ class Trial {
 // App
 module.exports = function() {
     const app = express();
-    app.use(bodyParser.json());
-    app.use(cookieParser());
-    app.use(cookieSession({ secret: config[config.ENV].cookieSecret }));
-    app.use(passport.initialize());
-    app.use(cors());
-
+    //app.use(bodyParser.json());
+    app.use(session({secret: config[config.ENV].sessionSecret, resave: false, saveUninitialized: false}));
+    
     // Serve static files out of public/
     app.use(express.static(path.join(__dirname, "public")));
 
-    // Auth serialization
+    app.use(passport.initialize());
+    app.use(passport.session());
+    //app.use(cors({ credentials: true, origin: true }));
+
+    
+
+    // Auth
+    // Override passport profile function to get user profile from Twitch API
+    OAuth2Strategy.prototype.userProfile = function(accessToken, done) {
+        var options = {
+            url: 'https://api.twitch.tv/kraken/user',
+            method: 'GET',
+            headers: {
+                'Client-ID': config[config.ENV].twitchClientId,
+                'Accept': 'application/vnd.twitchtv.v5+json',
+                'Authorization': 'OAuth ' + accessToken
+            }
+        };
+      
+        request(options, function (error, response, body) {
+            if (response && response.statusCode == 200) {
+                done(null, JSON.parse(body));
+            } else {
+                done(JSON.parse(body));
+            }
+        });
+    }
+
     passport.serializeUser(function(user, done) {
         done(null, user);
     });
-
+    
     passport.deserializeUser(function(user, done) {
         done(null, user);
     });
+    
+    passport.use('twitch', new OAuth2Strategy({
+        authorizationURL: 'https://api.twitch.tv/kraken/oauth2/authorize',
+        tokenURL: 'https://api.twitch.tv/kraken/oauth2/token',
+        clientID: config[config.ENV].twitchClientId,
+        clientSecret: config[config.ENV].twitchClientSecret,
+        callbackURL: config[config.ENV].twitchClientCallbackUri,
+        state: true
+    },
+    function(accessToken, refreshToken, profile, done) {
+        profile.accessToken = accessToken;
+        profile.refreshToken = refreshToken;
+    
+        // Securely store user profile in your DB
+        //User.findOrCreate(..., function(err, user) {
+        //  done(err, user);
+        //});
+        console.log(profile);
+    
+        done(null, profile);
+    }
+    ));
+    
+    // Set route to start OAuth link, this is where you define scopes to request
+    app.get('/auth/twitch', passport.authenticate('twitch', { scope: config[config.ENV].twitchScope }));
 
-    // All DBs
+    // Set route for OAuth redirect
+    app.get('/auth/twitch/callback', passport.authenticate('twitch', { successRedirect: '/', failureRedirect: '/' }));
+
+
+    // All DB stores
     const mapPools = new Datastore({ filename: path.join(__dirname, "/db/mappools.db"), autoload: true });
     const trials = new Datastore({ filename: path.join(__dirname, "/db/mappools.db"), autoload: true})
 
@@ -91,13 +131,6 @@ module.exports = function() {
         }
 
         console.log("Skipping mappools.db initialization.");
-    });
-
-    // Authentication routes
-    app.get("/auth/twitch", passport.authenticate("twitch"));
-    app.get("/auth/twitch/callback", passport.authenticate("twitch", { failureRedirect: "/" }), function(req, res) {
-        // Successful authentication, redirect to home (index.html)
-        res.redirect("/");
     });
 
     // API routes
