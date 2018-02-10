@@ -8,12 +8,9 @@
 import { Component, Vue } from "vue-property-decorator";
 
 @Component({
-    components: {
 
-    },
-    computed: {
-
-    },
 })
-export default class History extends Vue {}
+export default class History extends Vue {
+    
+}
 </script>

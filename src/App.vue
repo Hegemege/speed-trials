@@ -12,20 +12,7 @@
                 <router-link to="/create">Create</router-link>
                 <router-link to="/join">Join</router-link>
 
-                <div class="nav-player-container" v-if="userName">
-                    <div class="nav-mobile-separator"></div>
-                    <div class="nav-separator"></div>
-                    <div class="flex-container flex-container-vertical nav-player-name-display"
-                        v-on:mouseover="showReset = true"
-                        v-on:mouseleave="showReset = false">
-                        <span v-on:click="resetName">
-                        {{ userName }}
-                        </span>
-                        <span class="nav-player-reset-text" v-show="showReset">
-                            Click to reset
-                        </span>
-                    </div>
-                </div>
+                <PlayerNavDisplay></PlayerNavDisplay>
 
                 <div class="nav-mobile-separator"></div>
                 <div class="nav-separator"></div>
@@ -59,6 +46,7 @@
 import { Component, Vue } from "vue-property-decorator";
 import UserNameInput from "@/components/user-name-input.vue";
 import TwitchLogin from "@/components/twitch-login.vue";
+import PlayerNavDisplay from "@/components/player-nav-display.vue";
 import GlobalHelpers from "@/mixins.ts";
 
 import CookieLaw from "vue-cookie-law";
@@ -69,27 +57,20 @@ import ApiService from "@/api-service";
     components: {   
         UserNameInput,
         TwitchLogin,
+        PlayerNavDisplay,
         // This will display an error in editors because it can't find the custom typings shim in vue-cookie-law.d.ts in this project's root. Building works, though
         CookieLaw 
     }
 })
 export default class App extends Vue {
-    private showReset: boolean = false;
-
     // Computed 
+    // TEMP
     get registeredTrials() {
         return ["Trial 1", "Trial 2", "Trial 3"];
     }
 
     get userName() {
         return this.$store.state.userName;
-    }
-
-    get hasTwitchBadge() {
-        let userName = this.$store.state.userName;
-        if (!userName) return false;
-
-        return this.$store.state.hasBadge;
     }
 
     // Lifecycle hooks
@@ -102,8 +83,7 @@ export default class App extends Vue {
                     return;
                 }
 
-                console.log("Got from server", data);
-
+                // Calls the mutations, not the actions
                 this.$store.commit("_setUserName", data.name);
                 this.$store.commit("_setUserTwitchAuthenticated", data.isTwitchAuthenticated)
             });
@@ -112,11 +92,6 @@ export default class App extends Vue {
     // Methods
     exactTrialActive(trial: string) {
         return this.$route.query["name"] === trial;
-    }
-
-    resetName() {
-        this.$data.showReset = false;
-        this.$store.dispatch("setUserName", "");
     }
 }
 </script>
