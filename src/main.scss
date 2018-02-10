@@ -210,3 +210,8 @@ input[type="text"] {
 .swal2-popup .swal2-content {
     color: $common-text-color-light;
 }
+
+/* Small fixes to cookie-law */
+.Cookie__button {
+    white-space: nowrap;
+}

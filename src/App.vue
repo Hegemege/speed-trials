@@ -36,7 +36,7 @@
             <TwitchLogin></TwitchLogin>
         </div>
         
-        <cookie-law theme="blood-orange"></cookie-law>
+        <cookie-law message="This website uses cookies to ensure smooth user experience. By continuing to browse this website, you agree to the use of cookies." theme="blood-orange"></cookie-law>
     </div>
 </template>
 
