@@ -10,18 +10,31 @@ export default new Vuex.Store({
     state: {
         userName: "",
         twitchAuthenticated: false,
-        
+        globalSpinner: {
+            show: false,
+            instant: false
+        },
     },
     mutations: {
         _setUserName(state, name) {
-            state["userName"] = name;
+            state.userName = name;
         },
         _setUserTwitchAuthenticated(state, status) {
-            state["twitchAuthenticated"] = status;
+            state.twitchAuthenticated = status;
+        },
+        _setGlobalSpinner(state, values) {
+            state.globalSpinner.show = typeof values["show"] === "boolean" ? values["show"] : false;
+            state.globalSpinner.instant = typeof values["instant"] === "boolean" ? values["instant"] : false;
         }
     },
     actions: {
         setUserName(context, name): Promise<any> {
+            // Insant reset
+            if (name === "") {
+                context.commit("_setUserName", "");
+            }
+
+            // Update session on server side too
             return ApiService.setGuest(name)
                 .then((data: any) => {
                     if (data.result) {

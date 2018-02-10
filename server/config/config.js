@@ -49,6 +49,9 @@ module.exports = {
         // Session secret
         sessionSecret: secrets["dev"]["sessionSecret"],
 
+        simulateLatencyMin: 500,
+        simulateLatencyMax: 1500,
+
         // Server
         SERVER_PORT: 8081,
         SERVER_TIMEOUT: 120000,

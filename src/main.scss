@@ -1,6 +1,7 @@
 /* Text colors */
 $common-text-color: #cdcfc2;
 $common-text-color-dark: #8c8d84;
+$common-text-color-light: #e4e6dd;
 
 $common-accent-color: #c47a26;
 $common-accent-color-dark: #995b14;
@@ -20,6 +21,8 @@ $desktop-small: 100em;
 
 $input-width-desktop: 400px;
 
+$font-family: 'Avenir', Helvetica, Arial, sans-serif;
+$common-font-size: 16px;
 
 /* Site-wide CSS */
 
@@ -90,10 +93,10 @@ body, html {
 }
 
 #app {
-    font-family: 'Avenir', Helvetica, Arial, sans-serif;
+    font-family: $font-family;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    font-size: 16px;
+    font-size: $common-font-size;
     color: $common-text-color;
     background-color: $common-background-color;
 }
@@ -190,4 +193,20 @@ input[type="text"] {
             width: $input-width-desktop;
         }
     }
+}
+
+/* Stylized SWAL2 (sweetalert2) */
+
+.swal2-popup {
+    font-family: $font-family;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-size: $common-font-size;
+
+    background-color: $common-background-color-light;
+}
+
+.swal2-popup .swal2-title,
+.swal2-popup .swal2-content {
+    color: $common-text-color-light;
 }

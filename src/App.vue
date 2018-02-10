@@ -27,9 +27,9 @@
                 <router-link to="/history">History</router-link>
             </div>
         </div>
-        <OrbitSpinner :show="isLoading" :instant="true"></OrbitSpinner>
-        <router-view v-if="userName" class="content"></router-view>
-        <div v-else class="content">
+        <OrbitSpinner :show="showSpinner" :instant="true"></OrbitSpinner>
+        <router-view v-if="!isLoading && userName" class="content"></router-view>
+        <div v-else-if="!isLoading && !userName" class="content">
             <h1>Login</h1>
             <UserNameInput></UserNameInput>
             <p>or</p>
@@ -80,11 +80,21 @@ export default class App extends Vue {
         return this.$store.state.userName;
     }
 
+    get showSpinner() {
+        return this.$store.state.globalSpinner.show;
+    }
+
+    get instantSpinner() {
+        return this.$store.state.globalSpinner.instant;
+    }
+
     // Lifecycle hooks
     created() {
+        this.$store.commit("_setGlobalSpinner", { show: true, instant: true });
         // Get user's name
         ApiService.getUser()
             .then((data: any) => {
+                this.$store.commit("_setGlobalSpinner", { show: false, instant: true });
                 this.isLoading = false;
 
                 if (data.name === undefined || data.isTwitchAuthenticated === undefined) {

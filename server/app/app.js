@@ -61,6 +61,18 @@ module.exports = function() {
     app.use(passport.initialize());
     app.use(passport.session());
 
+    // Simulate latency
+    if (config.ENV === "dev") {
+        console.log("Simulating latency in dev");
+        app.use(function(req,res,next){
+            let latencyMin = config[config.ENV]["simulateLatencyMin"];
+            let latencyMax = config[config.ENV]["simulateLatencyMax"];
+            let latency = Math.random() * (latencyMax - latencyMin) + latencyMin;
+            setTimeout(next, latency);
+        });
+    }
+    
+
     // Auth
     // Override passport profile function to get user profile from Twitch API
     OAuth2Strategy.prototype.userProfile = function(accessToken, done) {

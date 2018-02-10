@@ -1,6 +1,5 @@
 <template>
     <div class="player-name-input">
-        <OrbitSpinner v-show="isLoading"></OrbitSpinner>
         <h2>As guest</h2>
         <input class="large-centered-input constant-input" 
                type="text" 
@@ -16,13 +15,10 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 
-import OrbitSpinner from "@/components/orbit-spinner.vue";
 import swal from "sweetalert2";
 
 @Component({
-    components: {
-        OrbitSpinner
-    }
+
 })
 export default class UserNameInput extends Vue {
     private isLoading: boolean = false;
@@ -30,11 +26,16 @@ export default class UserNameInput extends Vue {
     private errorMessage: string = "";  
 
     onSubmit() {
-        this.isLoading = true;
+        if (this.playerName === "") {
+            swal("You forgot something!", "Empty username", "error");
+            return;
+        }
 
-        this.$store.dispatch("setUserName", this.$data.playerName)
+        this.$store.commit("_setGlobalSpinner", { show : true, instant: false });
+
+        this.$store.dispatch("setUserName", this.playerName)
             .then((result: any) => {
-                this.isLoading = false;
+                this.$store.commit("_setGlobalSpinner", { show : false, instant: false });
                 if (!result.result) {
                     this.errorMessage = result.errorMessage;
                     swal("Wait a minute...", this.errorMessage, "error");

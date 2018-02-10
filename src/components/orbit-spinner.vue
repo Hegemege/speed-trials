@@ -1,7 +1,7 @@
 <template>
     <div v-show="!instant || show">
         <div class="overlay" :class="overlayClass"></div>
-        <div class="spinner-container">
+        <div v-show="show" class="spinner-container">
             <div class="orbit-spinner" :style="spinnerStyle">
                 <div class="orbit one" :style="orbitStyle"></div>
                 <div class="orbit two" :style="orbitStyle"></div>

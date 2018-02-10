@@ -1,6 +1,6 @@
 <template>
     <div class="twitch-login">
-        <OrbitSpinner v-show="isLoading"></OrbitSpinner>
+        <OrbitSpinner :show="isLoading"></OrbitSpinner>
         <h2>With your Twitch account</h2>
         <button v-on:click="onSubmit"
                 class="custom-button constant-button flex-container flex-align-center centered">
