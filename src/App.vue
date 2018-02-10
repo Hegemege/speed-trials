@@ -12,14 +12,14 @@
                 <router-link to="/create">Create</router-link>
                 <router-link to="/join">Join</router-link>
 
-                <div class="nav-player-container" v-if="playerName">
+                <div class="nav-player-container" v-if="userName">
                     <div class="nav-mobile-separator"></div>
                     <div class="nav-separator"></div>
                     <div class="flex-container flex-container-vertical nav-player-name-display"
                         v-on:mouseover="showReset = true"
                         v-on:mouseleave="showReset = false">
                         <span v-on:click="resetName">
-                        {{ playerName }}
+                        {{ userName }}
                         </span>
                         <span class="nav-player-reset-text" v-show="showReset">
                             Click to reset
@@ -40,10 +40,10 @@
                 <router-link to="/history">History</router-link>
             </div>
         </div>
-        <router-view v-if="playerName" class="content"></router-view>
+        <router-view v-if="userName" class="content"></router-view>
         <div v-else class="content">
             <h1>Login</h1>
-            <PlayerNameInput></PlayerNameInput>
+            <UserNameInput></UserNameInput>
             <p>or</p>
             <TwitchLogin></TwitchLogin>
         </div>
@@ -57,47 +57,56 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import PlayerNameInput from "@/components/player-name-input.vue";
+import UserNameInput from "@/components/user-name-input.vue";
 import TwitchLogin from "@/components/twitch-login.vue";
 import GlobalHelpers from "@/mixins.ts";
 
 import CookieLaw from "vue-cookie-law";
 
+import ApiService from "@/api-service";
+
 @Component({
     components: {   
-        PlayerNameInput,
+        UserNameInput,
         TwitchLogin,
         // This will display an error in editors because it can't find the custom typings shim in vue-cookie-law.d.ts in this project's root. Building works, though
         CookieLaw 
     }
 })
 export default class App extends Vue {
-    showReset: boolean = false;
+    private showReset: boolean = false;
 
     // Computed 
     get registeredTrials() {
         return ["Trial 1", "Trial 2", "Trial 3"];
     }
 
-    get playerName() {
-        return this.$store.state.playerName;
+    get userName() {
+        return this.$store.state.userName;
     }
 
     get hasTwitchBadge() {
-        let playerName = this.$store.state.playerName;
-        if (!playerName) return false;
+        let userName = this.$store.state.userName;
+        if (!userName) return false;
 
         return this.$store.state.hasBadge;
     }
 
     // Lifecycle hooks
     created() {
-        if (GlobalHelpers.methods.isLocalStorageSupported()) {
-            let playerName = localStorage.getItem("playerName");
-            if (playerName) {
-                this.$store.commit("setPlayerName", playerName);
-            }
-        }
+        // Get user's name
+        ApiService.getUser()
+            .then((data: any) => {
+                if (data.name === undefined || data.isTwitchAuthenticated === undefined) {
+                    console.error("Got invalid user info from server");
+                    return;
+                }
+
+                console.log("Got from server", data);
+
+                this.$store.commit("_setUserName", data.name);
+                this.$store.commit("_setUserTwitchAuthenticated", data.isTwitchAuthenticated)
+            });
     }
 
     // Methods
@@ -107,7 +116,7 @@ export default class App extends Vue {
 
     resetName() {
         this.$data.showReset = false;
-        this.$store.dispatch("setPlayerName", "");
+        this.$store.dispatch("setUserName", "");
     }
 }
 </script>

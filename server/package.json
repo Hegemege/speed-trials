@@ -28,10 +28,12 @@
     "uuid": "3.2.1",
     "cors": "2.8.4",
     "nedb": "1.8.0",
+    "nedb-session-store": "1.1.2",
     "passport": "0.4.0",
     "passport-oauth": "1.0.0",
     "request": "2.83.0",
-    "express-session": "1.15.6"
+    "express-session": "1.15.6",
+    "express-validator": "4.3.0"
   },
   "devDependencies": {
     "eslint": "^4.3.0",

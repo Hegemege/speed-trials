@@ -13,6 +13,8 @@
 import { Component, Vue } from "vue-property-decorator";
 import ApiService from "@/api-service";
 
+import { serverHost } from "../config";
+
 @Component({
 
 })
@@ -20,7 +22,7 @@ export default class TwitchLogin extends Vue {
     private service: ApiService = new ApiService();
 
     onSubmit() {
-        window.location.href = "/auth/twitch";
+        window.location.href = serverHost + "/auth/twitch";
     }
 }
 </script>

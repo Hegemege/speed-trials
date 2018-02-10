@@ -15,11 +15,13 @@ var request = require('request');
 var Datastore = require("nedb");
 var dbDefaults = require("./dbDefaults");
 
+var NedbStore = require('nedb-session-store')( session );
+
 // Config
 var config = require("../config/config");
 
-var cookieParser = require("cookie-parser");
-var cookieSession = require("cookie-session");
+// Input validation
+var validator = require("express-validator");
 
 // Object definitions
 class Trial {
@@ -35,17 +37,29 @@ class Trial {
 // App
 module.exports = function() {
     const app = express();
-    //app.use(bodyParser.json());
-    app.use(session({secret: config[config.ENV].sessionSecret, resave: false, saveUninitialized: false}));
-    
     // Serve static files out of public/
     app.use(express.static(path.join(__dirname, "public")));
+    app.use(cors({ credentials: true, origin: true }));
+    app.use(bodyParser.json());
+    app.use(validator());
+    app.use(session(
+        {
+            secret: config[config.ENV].sessionSecret, 
+            resave: false, 
+            saveUninitialized: false,
+            secure: false,
+            /*
+            // Enable session store to DB if needed.
+            // Requires some fixing, as only the username needs to be stored from passport
+            store: new NedbStore({
+                filename: path.join(__dirname, "/db/sessionstore.db")
+            })
+            */
+        })
+    );
 
     app.use(passport.initialize());
     app.use(passport.session());
-    //app.use(cors({ credentials: true, origin: true }));
-
-    
 
     // Auth
     // Override passport profile function to get user profile from Twitch API
@@ -88,13 +102,7 @@ module.exports = function() {
     function(accessToken, refreshToken, profile, done) {
         profile.accessToken = accessToken;
         profile.refreshToken = refreshToken;
-    
-        // Securely store user profile in your DB
-        //User.findOrCreate(..., function(err, user) {
-        //  done(err, user);
-        //});
-        console.log(profile);
-    
+
         done(null, profile);
     }
     ));
@@ -144,6 +152,45 @@ module.exports = function() {
     // API routes that touch the DB
     app.post("/api/create-match", function(req, res) {
         res.status(200).send({ message: "success" });
+    });
+
+    app.get("/api/user", function(req, res) {
+        if (req.session.passport && req.session.passport.user) {
+            if (req.session.passport.user.speed_trials_guest_name) {
+                res.status(200).send({ name: req.session.passport.user.speed_trials_guest_name, isTwitchAuthenticated: false });
+            } else {
+                res.status(200).send({ name: req.session.passport.user.name, isTwitchAuthenticated: true });
+            }
+        } else {
+            res.status(200).send({ name: "", isTwitchAuthenticated: false });
+        }        
+    });
+
+    app.post("/api/user", function(req, res) {
+        if (req.body["guestName"] === "") {
+            // User wants to reset their user credentials
+            // Set session.passport to null
+            req.session.passport = null;
+            res.status(200).send({ message: "success" });
+            return;
+        }
+
+        req.checkBody("guestName", "Guest name can contain a-z, A-Z, 0-9 or an underscore, and must be 4 to 25 symbols.").matches("^[a-zA-Z0-9_]{4,25}$");
+
+        var errors = req.validationErrors();
+        if (errors) {
+            res.status(200).send(errors);
+            return;
+        } else {
+            // Empty the passport.user and assign .speed_trials_guest_name
+            req.session.passport = {
+                user: {
+                    speed_trials_guest_name: req.body["guestName"]
+                }
+            }
+
+            res.status(200).send({ message: "success" });
+        }
     });
 
     return app;

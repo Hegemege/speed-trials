@@ -15,24 +15,25 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 
+import swal from "sweetalert2";
+
 @Component({
-    data: function() {
-        return {
-            playerName: ""
-        }
-    },
-    computed: {
 
-    },
-    methods: {
-        onSubmit: function() {
-            this.$store.dispatch("setPlayerName", this.$data.playerName);
-
-            let playerName = localStorage.getItem("playerName");
-        }
-    }
 })
-export default class PlayerNameInput extends Vue {}
+export default class UserNameInput extends Vue {
+    private playerName: string = "";
+    private errorMessage: string = "";  
+
+    onSubmit() {
+        this.$store.dispatch("setUserName", this.$data.playerName)
+            .then((result: any) => {
+                if (!result.result) {
+                    this.errorMessage = result.errorMessage;
+                    swal("Wait a minute...", this.errorMessage, "error");
+                }
+        });
+    }
+}
 </script>
 
 <style scoped>
