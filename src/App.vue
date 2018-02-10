@@ -13,14 +13,6 @@
 
                 <div class="nav-mobile-separator"></div>
                 <div class="nav-separator"></div>
-                <span>Active:</span>
-                <div v-for="(trial, index) in registeredTrials" :key="index" class="trial-link">
-                    <router-link :to="{ path: '/trial', query: { name: trial }}" 
-                                 v-bind:class="{ inactive: !exactTrialActive(trial)}">
-                        {{ trial }}
-                    </router-link>
-                </div>
-                <div class="nav-mobile-separator"></div>
                 <router-link to="/history">History</router-link>
             </div>
         </div>
@@ -70,10 +62,6 @@ export default class App extends Vue {
     private isLoading: boolean = true;
 
     // Computed
-    // TEMP
-    get registeredTrials() {
-        return ["Trial 1", "Trial 2", "Trial 3"];
-    }
 
     get userName() {
         return this.$store.state.userName;
@@ -101,11 +89,6 @@ export default class App extends Vue {
                 this.$store.commit("_setUserName", data.name);
                 this.$store.commit("_setUserTwitchAuthenticated", data.isTwitchAuthenticated);
             });
-    }
-
-    // Methods
-    private exactTrialActive(trial: string) {
-        return this.$route.query.name === trial;
     }
 }
 </script>
@@ -223,7 +206,7 @@ export default class App extends Vue {
 
 
 // Navbar link styling
-#nav a:hover, #nav a.router-link-exact-active:hover, #nav .trial-link a:hover {
+#nav a:hover, #nav a.router-link-exact-active:hover {
     background-color: $common-background-color-light;
 }
 
@@ -234,21 +217,6 @@ export default class App extends Vue {
 #nav a.router-link-exact-active {
     color: $common-accent-color;
     background-color: $common-background-color;
-}
-
-/* Navbar trial section */
-
-#nav .trial-link {
-    display: flex;
-}
-
-#nav .trial-link a {
-    width: auto;
-}
-
-#nav .trial-link a.router-link-exact-active.inactive {
-    color: $common-text-color-dark;
-    background-color: inherit;
 }
 
 </style>

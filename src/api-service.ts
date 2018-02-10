@@ -19,7 +19,7 @@ export default class ApiService {
                     link: res.data.link,
                 };
             }).catch((error) => {
-                return { result: false, errorMessage: "Unable to create match." };
+                return { result: false, errorMessage: error.response.data.error };
             });
     }
 

@@ -29,7 +29,11 @@ export default class Create extends Vue {
                 this.$store.commit("_setGlobalSpinner", { show: false, instant: false });
 
                 if (data.result) {
-                    swal("Success", "Invite code: " + data.code, "success");
+                    let code = data.code as string;
+                    swal("Success", "Invite code: " + data.code, "success")
+                        .then(() => {
+                            this.$router.push({ path: "/match/" + data.code });
+                        });
                 } else {
                     swal("Error", "Unable to create match. Reason: " + data.errorMessage, "error");
                 }

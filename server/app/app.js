@@ -24,15 +24,29 @@ var config = require("../config/config");
 var validator = require("express-validator");
 
 // Object definitions
-class Trial {
+class Match {
     constructor(name, joinCode, host) {
         this.name = name;
         this.joinCode = joinCode;
-        this.host = host;
-        this.players = [host];
-        this.mapPool = [];
+        this.host = host; // Host player
+        this.players = [host]; // List of all players
+        this.mapPool = []; // Chosen mappool
     }
 }
+
+class User {
+    constructor(name, guest, id) {
+        this.name = name; // Current username
+        this.guest = guest;
+
+        // Twitch ID. null if guest
+        // In dev mode, sessionID will be used
+        this.id = id; 
+    }
+}
+
+// Constants
+MATCH_CODE_LENGTH = 7;
 
 // App
 module.exports = function() {
@@ -41,37 +55,25 @@ module.exports = function() {
     app.use(express.static(path.join(__dirname, "public")));
     app.use(cors({ credentials: true, origin: true }));
     app.use(bodyParser.json());
+
     app.use(validator());
+
     app.use(session(
         {
             secret: config[config.ENV].sessionSecret, 
             resave: false, 
             saveUninitialized: false,
             secure: false,
-            /*
-            // Enable session store to DB if needed.
-            // Requires some fixing, as only the username needs to be stored from passport
+            
             store: new NedbStore({
-                filename: path.join(__dirname, "/db/sessionstore.db")
-            })
-            */
+                filename: path.join(__dirname, "/db/sessionstore.db"),
+                autoCompactInterval: 60 * 60 * 1000 // Every hour
+            }),
         })
     );
 
     app.use(passport.initialize());
     app.use(passport.session());
-
-    // Simulate latency
-    if (config.ENV === "dev") {
-        console.log("Simulating latency in dev");
-        app.use(function(req,res,next){
-            let latencyMin = config[config.ENV]["simulateLatencyMin"];
-            let latencyMax = config[config.ENV]["simulateLatencyMax"];
-            let latency = Math.random() * (latencyMax - latencyMin) + latencyMin;
-            setTimeout(next, latency);
-        });
-    }
-    
 
     // Auth
     // Override passport profile function to get user profile from Twitch API
@@ -109,7 +111,12 @@ module.exports = function() {
         clientID: config[config.ENV].twitchClientId,
         clientSecret: config[config.ENV].twitchClientSecret,
         callbackURL: config[config.ENV].twitchClientCallbackUri,
-        state: true
+        state: true,
+        // WHY THE FUCK DOES passport-oauth USE THE HOSTNAME AS KEY
+        // WHEN IT'S PRETTY MUCH ALWAYS STORED INTO SESSION STORAGE
+        // WHICH CAN BE MONGODB-STYLE AND NOT SUPPORTING DOTS IN
+        // THE SESSION KEY
+        sessionKey: "oauth2_twitch" 
     },
     function(accessToken, refreshToken, profile, done) {
         profile.accessToken = accessToken;
@@ -118,7 +125,19 @@ module.exports = function() {
         done(null, profile);
     }
     ));
-    
+
+
+    // Simulate latency
+    if (config.ENV === "dev") {
+        console.log("Simulating latency in dev");
+        app.use(function(req,res,next){
+            let latencyMin = config[config.ENV]["simulateLatencyMin"];
+            let latencyMax = config[config.ENV]["simulateLatencyMax"];
+            let latency = Math.random() * (latencyMax - latencyMin) + latencyMin;
+            setTimeout(next, latency);
+        });
+    }
+
     // Set route to start OAuth link, this is where you define scopes to request
     app.get('/auth/twitch', passport.authenticate('twitch', { scope: config[config.ENV].twitchScope }));
 
@@ -128,7 +147,7 @@ module.exports = function() {
 
     // All DB stores
     const mapPools = new Datastore({ filename: path.join(__dirname, "/db/mappools.db"), autoload: true });
-    const trials = new Datastore({ filename: path.join(__dirname, "/db/mappools.db"), autoload: true})
+    const matches = new Datastore({ filename: path.join(__dirname, "/db/matches.db"), autoload: true})
 
     // Check for DB initialization with default values
     // If DB contains no records, initialize with dbDefaults.mapPools
@@ -157,13 +176,53 @@ module.exports = function() {
 
     // Main api page, acts as a ping endpoint
     app.get("/api", function(req, res) {
-        res.setHeader("Content-Type", "application/json");
         res.status(200).send({ message: "success" });
     });
 
     // API routes that touch the DB
     app.post("/api/create-match", function(req, res) {
-        res.status(200).send({ result: true, code: "1234" });
+        let user = validateUser(req, res);
+        if (!user.valid) {
+            res.status(403).send({ error: "User is not logged in." });
+            return;
+        }
+
+        // Users can create matches in dev mode
+        if (user.guest && config.ENV !== "dev") {
+            res.status(403).send({ 
+                error: "Guests can not create matches. Please log out from the navigation bar, and log back in via Twitch." 
+            });
+            return;
+        }
+
+        let userObject = getUserObject(req);
+
+        let code = getNewMatchCode();
+        let match = new Match("Match " + code, code, userObject);
+
+        // First test if code is already in use.
+        // 1 in 64^7 chance, we need to celebrate it!
+        matches.find({ code: code }, (err, docs) => {
+            if (err) {
+                console.log("Error while finding match by code " + code + ": " + err);
+                res.status(500).send({ error: "Internal server error."});
+                return;
+            }
+            if (docs.length !== 0) {
+                res.status(400).send({ error: "Jackpot! Room already exists. That's a 1 in 64^7 chance!" });
+                return;
+            }
+        });
+
+        matches.insert(match, (err, docs) => {
+            if (err) {
+                console.log("Error while inserting match: " + match + ": " + err);
+                res.status(500).send({ error: "Internal server error." });
+                return;
+            }
+        });
+
+        res.status(200).send({ result: true, code: code });
     });
 
     app.get("/api/user", function(req, res) {
@@ -175,7 +234,7 @@ module.exports = function() {
             }
         } else {
             res.status(200).send({ result: true, name: "", isTwitchAuthenticated: false });
-        }        
+        }
     });
 
     app.post("/api/user", function(req, res) {
@@ -229,4 +288,38 @@ function validate(req, res, field, numeric) {
     }
 
     return true;
+}
+
+function validateUser(req, res) {
+    if (req.session.passport && req.session.passport.user) {
+        if (req.session.passport.user.speed_trials_guest_name) {
+            return { valid: true, name: req.session.passport.user.speed_trials_guest_name, guest: true };
+        }
+
+        if (req.session.passport.user.name) {
+            return { valid: true, name: req.session.passport.user.name, guest: false };
+        }
+    }
+    return { valid: false };
+}
+
+function getUserObject(req) {
+    let user = validateUser();
+    let name = user.name;
+    let guest = user.guest;
+    let id = user.guest ? 
+        req.session.passport.user._id :
+        req.sessionID;
+
+    return new User(name, guest, id);
+}
+
+function getNewMatchCode() {
+    var code = "";
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  
+    for (var i = 0; i < MATCH_CODE_LENGTH; i++)
+      code += possible.charAt(Math.floor(Math.random() * possible.length));
+  
+    return code;
 }

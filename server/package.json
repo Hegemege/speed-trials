@@ -27,7 +27,7 @@
     "moment": "^2.18.1",
     "uuid": "3.2.1",
     "cors": "2.8.4",
-    "nedb": "1.8.0",
+    "nedb-core": "3.0.6",
     "nedb-session-store": "1.1.2",
     "passport": "0.4.0",
     "passport-oauth": "1.0.0",
