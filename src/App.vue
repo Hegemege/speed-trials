@@ -9,9 +9,6 @@
 
             <div class="nav-mobile-separator"></div>
             <div id="nav-links" class="flex-container">
-                <router-link to="/create">Create</router-link>
-                <router-link to="/join">Join</router-link>
-
                 <PlayerNavDisplay></PlayerNavDisplay>
 
                 <div class="nav-mobile-separator"></div>

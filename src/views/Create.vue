@@ -15,13 +15,28 @@
 import { Component, Vue } from "vue-property-decorator";
 import ApiService from "@/api-service";
 
+import swal from "sweetalert2";
+
 @Component({
 
 })
 export default class Create extends Vue {
 
     createMatch() {
-        console.log("Create match");
+        this.$store.commit("_setGlobalSpinner", { show: true, instant: false });
+
+        ApiService.createMatch()
+            .then((data: any) => {
+                this.$store.commit("_setGlobalSpinner", { show: false, instant: false });
+
+                if (data.result) {
+                    swal("Success", "Invite code: " + data.code, "success");
+                } else {
+                    swal("Error", "Unable to create match. Reason: " + data.errorMessage, "error");
+                }
+
+                
+            });
     }
 }
 </script>

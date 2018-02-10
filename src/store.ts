@@ -23,8 +23,9 @@ export default new Vuex.Store({
             state.twitchAuthenticated = status;
         },
         _setGlobalSpinner(state, values) {
-            state.globalSpinner.show = typeof values["show"] === "boolean" ? values["show"] : false;
+            // Update instant first
             state.globalSpinner.instant = typeof values["instant"] === "boolean" ? values["instant"] : false;
+            state.globalSpinner.show = typeof values["show"] === "boolean" ? values["show"] : false;
         }
     },
     actions: {

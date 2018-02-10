@@ -163,7 +163,7 @@ module.exports = function() {
 
     // API routes that touch the DB
     app.post("/api/create-match", function(req, res) {
-        res.status(200).send({ message: "success" });
+        res.status(200).send({ result: true, code: "1234" });
     });
 
     app.get("/api/user", function(req, res) {
