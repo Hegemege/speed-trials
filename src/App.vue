@@ -27,7 +27,7 @@
                 <router-link to="/history">History</router-link>
             </div>
         </div>
-        <OrbitSpinner :show="showSpinner" :instant="true"></OrbitSpinner>
+        <OrbitSpinner></OrbitSpinner>
         <router-view v-if="!isLoading && userName" class="content"></router-view>
         <div v-else-if="!isLoading && !userName" class="content">
             <h1>Login</h1>
@@ -78,14 +78,6 @@ export default class App extends Vue {
 
     get userName() {
         return this.$store.state.userName;
-    }
-
-    get showSpinner() {
-        return this.$store.state.globalSpinner.show;
-    }
-
-    get instantSpinner() {
-        return this.$store.state.globalSpinner.instant;
     }
 
     // Lifecycle hooks
@@ -207,6 +199,7 @@ export default class App extends Vue {
     font-size: 10px;
     text-align: center;
     margin-top: -1em;
+    pointer-events: none;
 }
 
 // Mobile separator in navbar

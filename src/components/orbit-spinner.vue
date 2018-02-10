@@ -1,12 +1,10 @@
 <template>
     <div v-show="!instant || show">
         <div class="overlay" :class="overlayClass"></div>
-        <div v-show="show" class="spinner-container">
-            <div class="orbit-spinner" :style="spinnerStyle">
-                <div class="orbit one" :style="orbitStyle"></div>
-                <div class="orbit two" :style="orbitStyle"></div>
-                <div class="orbit three" :style="orbitStyle"></div>
-            </div>
+        <div v-show="show" class="orbit-spinner" :style="spinnerStyle">
+            <div class="orbit one" :style="orbitStyle"></div>
+            <div class="orbit two" :style="orbitStyle"></div>
+            <div class="orbit three" :style="orbitStyle"></div>
         </div>
     </div>
 </template>
@@ -29,14 +27,6 @@ import { Component, Vue, Prop } from "vue-property-decorator";
         color: {
             default: "#ff1d5e",
             type: String
-        },
-        show: {
-            default: false,
-            type: Boolean
-        },
-        instant: {
-            default: false,
-            type: Boolean
         }
     }
 })
@@ -44,11 +34,17 @@ export default class OrbitSpinner extends Vue {
     private size!: number;
     private duration!: number;
     private color!: string;
-    private show!: boolean;
-    private instant!: boolean;
 
     created() {
 
+    }
+
+    get show() {    
+        return this.$store.state.globalSpinner.show;
+    }
+
+    get instant() {
+        return this.$store.state.globalSpinner.instant;
     }
 
     get overlayClass() {
