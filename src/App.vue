@@ -27,6 +27,7 @@
                 <router-link to="/history">History</router-link>
             </div>
         </div>
+        <OrbitSpinner :show="isLoading" :instant="true"></OrbitSpinner>
         <router-view v-if="userName" class="content"></router-view>
         <div v-else class="content">
             <h1>Login</h1>
@@ -48,21 +49,27 @@ import UserNameInput from "@/components/user-name-input.vue";
 import TwitchLogin from "@/components/twitch-login.vue";
 import PlayerNavDisplay from "@/components/player-nav-display.vue";
 import GlobalHelpers from "@/mixins.ts";
-
 import CookieLaw from "vue-cookie-law";
 
 import ApiService from "@/api-service";
+
+import OrbitSpinner from "@/components/orbit-spinner.vue";
+import { isNullOrUndefined } from "util";
+import { setTimeout } from "timers";
 
 @Component({
     components: {   
         UserNameInput,
         TwitchLogin,
         PlayerNavDisplay,
+        OrbitSpinner,
         // This will display an error in editors because it can't find the custom typings shim in vue-cookie-law.d.ts in this project's root. Building works, though
         CookieLaw 
     }
 })
 export default class App extends Vue {
+    private isLoading: boolean = true;
+
     // Computed 
     // TEMP
     get registeredTrials() {
@@ -78,6 +85,8 @@ export default class App extends Vue {
         // Get user's name
         ApiService.getUser()
             .then((data: any) => {
+                this.isLoading = false;
+
                 if (data.name === undefined || data.isTwitchAuthenticated === undefined) {
                     console.error("Got invalid user info from server");
                     return;

@@ -21,13 +21,7 @@ import ApiService from "@/api-service";
 export default class Create extends Vue {
 
     createMatch() {
-        /*
-        // REDO AS A STORE ACTION
-        ApiService.createMatch({})
-            .then((result: boolean) => {
-                console.log("Match created", result);
-            });
-        */
+        console.log("Create match");
     }
 }
 </script>

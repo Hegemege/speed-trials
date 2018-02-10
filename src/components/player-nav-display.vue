@@ -10,7 +10,7 @@
                 {{ userName }}
                 </span>
                 <span class="nav-player-reset-text" v-show="showReset">
-                    Click to reset
+                    Click to log out
                 </span>
             </div>
             <img class="twitch-badge" v-if="hasTwitchBadge" src="../assets/GlitchBadge_Purple_24px.png">
