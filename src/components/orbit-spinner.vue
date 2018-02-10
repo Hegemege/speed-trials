@@ -18,28 +18,24 @@ import { Component, Vue, Prop } from "vue-property-decorator";
     props: {
         size: {
             default: 55,
-            type: Number
+            type: Number,
         },
         duration: {
             default: 1200,
-            type: Number
+            type: Number,
         },
         color: {
             default: "#ff1d5e",
-            type: String
-        }
-    }
+            type: String,
+        },
+    },
 })
 export default class OrbitSpinner extends Vue {
     private size!: number;
     private duration!: number;
     private color!: string;
 
-    created() {
-
-    }
-
-    get show() {    
+    get show() {
         return this.$store.state.globalSpinner.show;
     }
 
@@ -50,22 +46,22 @@ export default class OrbitSpinner extends Vue {
     get overlayClass() {
         return [
             this.show ? "visible" : "",
-            this.instant ? "instant" : ""
+            this.instant ? "instant" : "",
         ];
     }
 
     get spinnerStyle() {
         return {
           height: this.size + "px",
-          width: this.size + "px"
-        }
+          width: this.size + "px",
+        };
     }
 
-    get orbitStyle () {
+    get orbitStyle() {
         return {
             borderColor: this.color,
-            animationDuration: this.duration + "ms"
-        }
+            animationDuration: this.duration + "ms",
+        };
     }
 }
 </script>

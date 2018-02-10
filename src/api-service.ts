@@ -11,47 +11,44 @@ export default class ApiService {
      */
     public static createMatch(): Promise<any> {
         return axios.post(this.apiURL + "/create-match", { }, { withCredentials: true })
-            .then(res => {
-                return { 
-                    result: res.data.result, 
+            .then((res) => {
+                return {
+                    result: res.data.result,
                     errorMessage: res.data.errorMessage,
-                    code: res.data.code, 
-                    link: res.data.link
+                    code: res.data.code,
+                    link: res.data.link,
                 };
-            }).catch(error => {
-                console.error("Error while creating match:", error);
-                return { result: false, errorMessage: error };
+            }).catch((error) => {
+                return { result: false, errorMessage: "Unable to create match." };
             });
     }
 
     public static getUser(): Promise<any> {
         return axios.get(this.apiURL + "/user", { withCredentials: true })
-            .then(res => {
+            .then((res) => {
                 return res.data;
-            }).catch(error => {
-                console.error("Error while getting user:", error);
-                return "";
+            }).catch((error) => {
+                return { result: false, errorMessage: "Unable to connect to the server." };
             });
     }
 
     public static setGuest(name: string): Promise<any> {
-        let body = {
-            guestName: name
+        const body = {
+            guestName: name,
         };
-        
+
         return axios.post(this.apiURL + "/user", body, { withCredentials: true })
             .then((res: any) => {
-                if (res.data["message"]) {
+                if (res.data.result) {
                     return { result: true };
                 }
 
-                return { 
-                    result: false, 
-                    errorMessage: res.data.map((error: any) => error.msg).join(", ") 
+                return {
+                    result: false,
+                    errorMessage: res.data.validationErrors.map((error: any) => error.msg).join(", "),
                 };
-            }).catch(error => {
-                console.error("Error while setting guest user:", error);
-                return false;
+            }).catch((error) => {
+                return { result: false, errorMessage: "Unable to set guest name." };
             });
 
     }

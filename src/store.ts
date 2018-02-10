@@ -12,7 +12,7 @@ export default new Vuex.Store({
         twitchAuthenticated: false,
         globalSpinner: {
             show: false,
-            instant: false
+            instant: false,
         },
     },
     mutations: {
@@ -24,9 +24,9 @@ export default new Vuex.Store({
         },
         _setGlobalSpinner(state, values) {
             // Update instant first
-            state.globalSpinner.instant = typeof values["instant"] === "boolean" ? values["instant"] : false;
-            state.globalSpinner.show = typeof values["show"] === "boolean" ? values["show"] : false;
-        }
+            state.globalSpinner.instant = typeof values.instant === "boolean" ? values.instant : false;
+            state.globalSpinner.show = typeof values.show === "boolean" ? values.show : false;
+        },
     },
     actions: {
         setUserName(context, name): Promise<any> {
@@ -47,6 +47,6 @@ export default new Vuex.Store({
 
         setUserTwitchAuthenticated(context, status) {
             context.commit("_setUserTwitchAuthenticated", name);
-        }
+        },
     },
 });

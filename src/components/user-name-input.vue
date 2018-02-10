@@ -23,9 +23,9 @@ import swal from "sweetalert2";
 export default class UserNameInput extends Vue {
     private isLoading: boolean = false;
     private playerName: string = "";
-    private errorMessage: string = "";  
+    private errorMessage: string = "";
 
-    onSubmit() {
+    private onSubmit() {
         if (this.playerName === "") {
             swal("You forgot something!", "Empty username", "error");
             return;

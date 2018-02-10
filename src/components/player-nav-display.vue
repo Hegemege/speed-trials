@@ -32,14 +32,14 @@ export default class PlayerNavDisplay extends Vue {
     }
 
     get hasTwitchBadge() {
-        let userName = this.$store.state.userName;
-        if (!userName) return false;
+        const userName = this.$store.state.userName;
+        if (!userName) { return false; }
 
         return this.$store.state.twitchAuthenticated;
     }
 
 
-    resetName() {
+    private resetName() {
         this.$data.showReset = false;
         this.$store.dispatch("setUserName", "");
         this.$store.dispatch("setUserTwitchAuthenticated", false);

@@ -51,23 +51,25 @@ import CookieLaw from "vue-cookie-law";
 import ApiService from "@/api-service";
 
 import OrbitSpinner from "@/components/orbit-spinner.vue";
-import { isNullOrUndefined } from "util";
-import { setTimeout } from "timers";
+
+import swal from "sweetalert2";
 
 @Component({
-    components: {   
+    components: {
         UserNameInput,
         TwitchLogin,
         PlayerNavDisplay,
         OrbitSpinner,
-        // This will display an error in editors because it can't find the custom typings shim in vue-cookie-law.d.ts in this project's root. Building works, though
-        CookieLaw 
-    }
+        // This will display an error in editors because it can't find the
+        // custom typings shim in vue-cookie-law.d.ts in this project's root.
+        // Building works, though
+        CookieLaw,
+    },
 })
 export default class App extends Vue {
     private isLoading: boolean = true;
 
-    // Computed 
+    // Computed
     // TEMP
     get registeredTrials() {
         return ["Trial 1", "Trial 2", "Trial 3"];
@@ -78,7 +80,7 @@ export default class App extends Vue {
     }
 
     // Lifecycle hooks
-    created() {
+    private created() {
         this.$store.commit("_setGlobalSpinner", { show: true, instant: true });
         // Get user's name
         ApiService.getUser()
@@ -86,20 +88,24 @@ export default class App extends Vue {
                 this.$store.commit("_setGlobalSpinner", { show: false, instant: true });
                 this.isLoading = false;
 
+                if (!data.result) {
+                    swal("Error", data.errorMessage, "error");
+                    return;
+                }
+
                 if (data.name === undefined || data.isTwitchAuthenticated === undefined) {
-                    console.error("Got invalid user info from server");
                     return;
                 }
 
                 // Calls the mutations, not the actions
                 this.$store.commit("_setUserName", data.name);
-                this.$store.commit("_setUserTwitchAuthenticated", data.isTwitchAuthenticated)
+                this.$store.commit("_setUserTwitchAuthenticated", data.isTwitchAuthenticated);
             });
     }
 
     // Methods
-    exactTrialActive(trial: string) {
-        return this.$route.query["name"] === trial;
+    private exactTrialActive(trial: string) {
+        return this.$route.query.name === trial;
     }
 }
 </script>

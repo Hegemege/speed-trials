@@ -22,7 +22,7 @@ export default new Router({
         {
             path: "/history",
             name: "history",
-            component: History
-        }
+            component: History,
+        },
     ],
 });

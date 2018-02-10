@@ -2,8 +2,7 @@ let baseUrl = "";
 
 if (process.env.NODE_ENV === "production") {
     baseUrl = "https://TODO";
-}
-else {
+} else {
     baseUrl = "http://localhost:8081";
 }
 

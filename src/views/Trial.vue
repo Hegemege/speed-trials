@@ -12,7 +12,7 @@ import { Component, Vue } from "vue-property-decorator";
 })
 export default class Trial extends Vue {
     get trialName() {
-        return this.$route.query["name"];
+        return this.$route.query.name;
     }
 }
 </script>

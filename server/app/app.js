@@ -169,12 +169,12 @@ module.exports = function() {
     app.get("/api/user", function(req, res) {
         if (req.session.passport && req.session.passport.user) {
             if (req.session.passport.user.speed_trials_guest_name) {
-                res.status(200).send({ name: req.session.passport.user.speed_trials_guest_name, isTwitchAuthenticated: false });
+                res.status(200).send({ result: true, name: req.session.passport.user.speed_trials_guest_name, isTwitchAuthenticated: false });
             } else {
-                res.status(200).send({ name: req.session.passport.user.name, isTwitchAuthenticated: true });
+                res.status(200).send({ result: true, name: req.session.passport.user.name, isTwitchAuthenticated: true });
             }
         } else {
-            res.status(200).send({ name: "", isTwitchAuthenticated: false });
+            res.status(200).send({ result: true, name: "", isTwitchAuthenticated: false });
         }        
     });
 
@@ -183,7 +183,7 @@ module.exports = function() {
             // User wants to reset their user credentials
             // Set session.passport to null
             req.session.passport = null;
-            res.status(200).send({ message: "success" });
+            res.status(200).send({ result: true });
             return;
         }
 
@@ -191,7 +191,7 @@ module.exports = function() {
 
         var errors = req.validationErrors();
         if (errors) {
-            res.status(200).send(errors);
+            res.status(200).send({ result: false, validationErrors: errors });
             return;
         } else {
             // Empty the passport.user and assign .speed_trials_guest_name
@@ -201,7 +201,7 @@ module.exports = function() {
                 }
             }
 
-            res.status(200).send({ message: "success" });
+            res.status(200).send({ result: true });
         }
     });
 

@@ -22,7 +22,7 @@ import History from "./History.vue";
     components: {
         Create,
         Join,
-        History
+        History,
     },
 })
 export default class Home extends Vue {}

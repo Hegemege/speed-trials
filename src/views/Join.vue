@@ -28,9 +28,9 @@ import { Component, Vue } from "vue-property-decorator";
 
 })
 export default class Join extends Vue {
-    codeInput: string = "";
+    private codeInput: string = "";
 
-    joinMatch() {
+    private joinMatch() {
         console.log("Join match");
     }
 }

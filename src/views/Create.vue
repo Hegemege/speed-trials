@@ -21,8 +21,7 @@ import swal from "sweetalert2";
 
 })
 export default class Create extends Vue {
-
-    createMatch() {
+    private createMatch() {
         this.$store.commit("_setGlobalSpinner", { show: true, instant: false });
 
         ApiService.createMatch()
@@ -34,8 +33,6 @@ export default class Create extends Vue {
                 } else {
                     swal("Error", "Unable to create match. Reason: " + data.errorMessage, "error");
                 }
-
-                
             });
     }
 }

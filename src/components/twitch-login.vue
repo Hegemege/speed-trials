@@ -21,7 +21,7 @@ import { serverHost } from "../config";
 export default class TwitchLogin extends Vue {
     private service: ApiService = new ApiService();
 
-    onSubmit() {
+    private onSubmit() {
         this.$store.commit("_setGlobalSpinner", { show: true, instant: false });
         window.location.href = serverHost + "/auth/twitch";
     }
