@@ -2,7 +2,8 @@
     <div class="player-name-input">
         <h2>As guest</h2>
         <input class="large-centered-input constant-input" 
-               type="text" 
+               type="text"
+               placeholder="username"
                v-on:keyup.enter="onSubmit" 
                v-model="playerName">
         <button v-on:click="onSubmit"
