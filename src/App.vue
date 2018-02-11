@@ -9,7 +9,7 @@
 
             <div class="nav-mobile-separator"></div>
             <div id="nav-links" class="flex-container">
-                <PlayerNavDisplay></PlayerNavDisplay>
+                <UserNavDisplay></UserNavDisplay>
 
                 <div class="nav-mobile-separator"></div>
                 <div class="nav-separator"></div>
@@ -19,10 +19,23 @@
         <OrbitSpinner></OrbitSpinner>
         <router-view v-if="!isLoading && userName" class="content"></router-view>
         <div v-else-if="!isLoading && !userName" class="content">
-            <h1>Login</h1>
-            <UserNameInput></UserNameInput>
-            <p>or</p>
-            <TwitchLogin></TwitchLogin>
+            <div class="flex-item flex-container-desktop">
+                <div class="flex-item-desktop full-height">
+                    <h1>Log in</h1>
+                    <p>
+                        To start using the site, please log in first. You can log in as a guest
+                        if you are just going to be joining SpeedTrial(tm) matches
+                    </p>
+                    <UserNameInput></UserNameInput>
+                    <div class="content-separator"></div>
+                    <p>or</p>
+                    <TwitchLogin></TwitchLogin>
+                </div>
+                <div class="content-separator-vertical"></div>
+                <div class="flex-item-desktop full-height">
+                    <History></History>
+                </div>
+            </div>
         </div>
         
         <cookie-law message="This website uses cookies to ensure smooth user experience. By continuing to browse this website, you agree to the use of cookies." theme="blood-orange"></cookie-law>
@@ -36,7 +49,8 @@
 import { Component, Vue } from "vue-property-decorator";
 import UserNameInput from "@/components/user-name-input.vue";
 import TwitchLogin from "@/components/twitch-login.vue";
-import PlayerNavDisplay from "@/components/player-nav-display.vue";
+import UserNavDisplay from "@/components/user-nav-display.vue";
+import History from "@/views/History.vue";
 import GlobalHelpers from "@/mixins.ts";
 import CookieLaw from "vue-cookie-law";
 
@@ -50,7 +64,8 @@ import swal from "sweetalert2";
     components: {
         UserNameInput,
         TwitchLogin,
-        PlayerNavDisplay,
+        UserNavDisplay,
+        History,
         OrbitSpinner,
         // This will display an error in editors because it can't find the
         // custom typings shim in vue-cookie-law.d.ts in this project's root.
@@ -169,26 +184,6 @@ export default class App extends Vue {
     @media (min-width: $mobile) {
         flex-direction: row;
     }
-}
-
-#nav .nav-player-container {
-    display: flex;
-    flex-direction: column;
-    @media (min-width: $mobile) {
-        flex-direction: row;
-    }
-}
-
-#nav .nav-player-container:hover {
-    cursor: pointer;
-}
-
-#nav .nav-player-container .nav-player-reset-text {
-    padding: 0;
-    font-size: 10px;
-    text-align: center;
-    margin-top: -1em;
-    pointer-events: none;
 }
 
 // Mobile separator in navbar

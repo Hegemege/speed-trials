@@ -23,6 +23,7 @@ $input-width-desktop: 400px;
 
 $font-family: 'Avenir', Helvetica, Arial, sans-serif;
 $common-font-size: 16px;
+$common-font-line-height: 1.5em;
 
 /* Site-wide CSS */
 
@@ -65,12 +66,25 @@ $common-font-size: 16px;
     display: flex;
 }
 
+// Flex container that is row-direction in desktop
+// and column-direction in mobile
 .flex-container-desktop {
     display: flex;
     flex-direction: column;
     overflow-y: auto;
     @media (min-width: $mobile) {
         flex-direction: row;
+    }
+}
+
+// Flex container that is column-direction in desktop
+// and row-direction in mobile
+.flex-container-mobile {
+    display: flex;
+    flex-direction: row;
+    @media (min-width: $mobile) {
+        flex-direction: column;
+        overflow-y: auto;
     }
 }
 
@@ -97,6 +111,7 @@ body, html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-size: $common-font-size;
+    line-height: $common-font-line-height;
     color: $common-text-color;
     background-color: $common-background-color;
 }
@@ -161,6 +176,12 @@ button {
             width: $input-width-desktop;
         }
     }
+}
+
+input {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;    
+    box-sizing: border-box;
 }
 
 input[type="text"] {
