@@ -6,4 +6,6 @@ if (process.env.NODE_ENV === "production") {
     baseUrl = "http://localhost:8081";
 }
 
-export const serverHost = baseUrl;
+export const config = {
+    serverHost: baseUrl
+};

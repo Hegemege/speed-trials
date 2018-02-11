@@ -43,6 +43,8 @@ export default class PlayerNavDisplay extends Vue {
         this.$data.showReset = false;
         this.$store.dispatch("setUserName", "");
         this.$store.dispatch("setUserTwitchAuthenticated", false);
+
+        this.$router.push("/");
     }
 }
 </script>

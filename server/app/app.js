@@ -11,6 +11,9 @@ var passport = require('passport');
 var OAuth2Strategy = require('passport-oauth').OAuth2Strategy;
 var request = require('request');
 
+// Socket IO shared session with express
+var sharedsession = require("express-socket.io-session");
+
 // DB
 var Datastore = require("nedb");
 var dbDefaults = require("./dbDefaults");
@@ -58,7 +61,7 @@ module.exports = function() {
 
     app.use(validator());
 
-    app.use(session(
+    var sessionObject = session(
         {
             secret: config[config.ENV].sessionSecret, 
             resave: false, 
@@ -69,8 +72,9 @@ module.exports = function() {
                 filename: path.join(__dirname, "/db/sessionstore.db"),
                 autoCompactInterval: 60 * 60 * 1000 // Every hour
             }),
-        })
-    );
+        });
+
+    app.use(sessionObject);
 
     app.use(passport.initialize());
     app.use(passport.session());
@@ -181,7 +185,7 @@ module.exports = function() {
 
     // API routes that touch the DB
     app.post("/api/create-match", function(req, res) {
-        let user = validateUser(req, res);
+        let user = validateUser(req.session);
         if (!user.valid) {
             res.status(403).send({ error: "User is not logged in." });
             return;
@@ -264,7 +268,31 @@ module.exports = function() {
         }
     });
 
-    return app;
+    // Helper handler function such that all business logic exists in app.js while
+    // the server connection etc is handled in server.js
+    const io = {
+        handleSocketIo: function(io) {
+            io.use(sharedsession(sessionObject, {
+                autoSave: true
+            })); 
+
+            io.sockets.on("connection", function (socket) {
+                if (!validateSocket(socket)) return;
+
+                
+            });
+
+            io.sockets.on("matchData", function(socket) {
+                if (!validateSocket(socket)) return;
+
+
+            });
+        }
+    };
+
+
+
+    return {app: app, io: io};
 };
 
 function isNumeric(n) {
@@ -290,21 +318,39 @@ function validate(req, res, field, numeric) {
     return true;
 }
 
-function validateUser(req, res) {
-    if (req.session.passport && req.session.passport.user) {
-        if (req.session.passport.user.speed_trials_guest_name) {
-            return { valid: true, name: req.session.passport.user.speed_trials_guest_name, guest: true };
+function validateUser(session) {
+    if (session.passport && session.passport.user) {
+        if (session.passport.user.speed_trials_guest_name) {
+            return { valid: true, name: session.passport.user.speed_trials_guest_name, guest: true };
         }
 
-        if (req.session.passport.user.name) {
-            return { valid: true, name: req.session.passport.user.name, guest: false };
+        if (session.passport.user.name) {
+            return { valid: true, name: session.passport.user.name, guest: false };
         }
     }
     return { valid: false };
 }
 
+function validateSocket(socket) {
+    // Check if session exists
+    let session = socket.handshake.session;
+    if (!session) {
+        socket.disconnect();
+        return false;
+    }
+
+    // Check that user is authenticated
+    let user = validateUser(session);
+    if (!user.valid) {
+        socket.disconnect();
+        return false;
+    }
+
+    return true;
+}
+
 function getUserObject(req) {
-    let user = validateUser();
+    let user = validateUser(req.session);
     let name = user.name;
     let guest = user.guest;
     let id = user.guest ? 

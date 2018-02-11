@@ -69,6 +69,9 @@ export default class App extends Vue {
 
     // Lifecycle hooks
     private created() {
+        // Test websocket
+        
+
         this.$store.commit("_setGlobalSpinner", { show: true, instant: true });
         // Get user's name
         ApiService.getUser()

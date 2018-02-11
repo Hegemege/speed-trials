@@ -1,10 +1,10 @@
 import axios from "axios";
 
-import { serverHost } from "./config";
+import { config } from "./config";
 
 export default class ApiService {
-    public static serverURL: string = serverHost;
-    public static apiURL: string = serverHost + "/api";
+    public static serverURL: string = config.serverHost;
+    public static apiURL: string = config.serverHost + "/api";
 
     /**
      * Attempt to create a new match on the server. Returns with result and invite code

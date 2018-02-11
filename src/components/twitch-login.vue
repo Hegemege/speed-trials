@@ -13,7 +13,7 @@
 import { Component, Vue } from "vue-property-decorator";
 
 import ApiService from "@/api-service";
-import { serverHost } from "../config";
+import { config } from "../config";
 
 @Component({
 
@@ -23,7 +23,7 @@ export default class TwitchLogin extends Vue {
 
     private onSubmit() {
         this.$store.commit("_setGlobalSpinner", { show: true, instant: false });
-        window.location.href = serverHost + "/auth/twitch";
+        window.location.href = config.serverHost + "/auth/twitch";
     }
 }
 </script>

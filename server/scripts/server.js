@@ -54,7 +54,11 @@ console.log("Running application", chalk.magenta(APP_NAME),
  */
 console.log("Starting Express server...");
 const app = require("../app/app")();
-const server = app.listen(SERVER_PORT, function() {
+
+const expressApp = app.app;
+const ioApp = app.io;
+
+const server = expressApp.listen(SERVER_PORT, function() {
 
     //Skip if no address
     if (!this.address()) {
@@ -69,6 +73,11 @@ const server = app.listen(SERVER_PORT, function() {
     //Output success message
     console.log(chalk.green("Express server started @"), chalk.magenta(address));
 });
+
+// Add socket.io
+// Let app.js handle the websockets too, since all business logic is there
+const io = require('socket.io')(server);
+ioApp.handleSocketIo(io);
 
 //Configure and apply error handler
 server.timeout = SERVER_TIMEOUT;
