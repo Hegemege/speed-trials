@@ -48,6 +48,13 @@ class User {
     }
 }
 
+class MatchSocket {
+    constructor(matchId) {
+        this.matchId = matchId
+        this.connectedSockets = [];
+    }
+}
+
 // Constants
 MATCH_CODE_LENGTH = 7;
 
@@ -152,6 +159,7 @@ module.exports = function() {
     // All DB stores
     const mapPools = new Datastore({ filename: path.join(__dirname, "/db/mappools.db"), autoload: true });
     const matches = new Datastore({ filename: path.join(__dirname, "/db/matches.db"), autoload: true})
+
 
     // Check for DB initialization with default values
     // If DB contains no records, initialize with dbDefaults.mapPools
@@ -279,13 +287,18 @@ module.exports = function() {
             io.sockets.on("connection", function (socket) {
                 if (!validateSocket(socket)) return;
 
-                
+
             });
 
-            io.sockets.on("matchData", function(socket) {
+            io.sockets.on("connect-match-code", function(socket) {
                 if (!validateSocket(socket)) return;
 
+                // If user provided a bad match code, disconnect them
 
+                // Otherwise, assign them to the correct room
+
+                // List all rooms a user is in
+                //socket.rooms
             });
         }
     };
