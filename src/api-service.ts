@@ -23,6 +23,19 @@ export default class ApiService {
             });
     }
 
+    public static getMatch(code: string): Promise<any> {
+        return axios.get(this.apiURL + "/match/" + code, { withCredentials: true })
+            .then((res) => {
+                if (!res.data.result) {
+                    return { result: false, errorMessage: res.data.validationErrors.map((error: any) => error.msg).join(", ") };
+                }
+
+                return res.data;
+            }).catch((error) => {
+                return { result: false, errorMessage: error.response.data.error };
+            });
+    }
+
     public static getUser(): Promise<any> {
         return axios.get(this.apiURL + "/user", { withCredentials: true })
             .then((res) => {
