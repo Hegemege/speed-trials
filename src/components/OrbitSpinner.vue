@@ -31,9 +31,9 @@ import { Component, Vue, Prop } from "vue-property-decorator";
     },
 })
 export default class OrbitSpinner extends Vue {
-    private size!: number;
-    private duration!: number;
-    private color!: string;
+    public size!: number;
+    public duration!: number;
+    public color!: string;
 
     get show() {
         return this.$store.state.globalSpinner.show;

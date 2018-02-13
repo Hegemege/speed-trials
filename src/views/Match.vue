@@ -1,24 +1,51 @@
 <template>
-    <div v-if="matchData" class="match">
-        <h1>{{ matchData.name }}</h1>
+    <div v-if="matchData" 
+         class="match flex-item flex-container-vertical">
+        <div>
+            <h1>{{ matchData.name }}</h1>
+        </div>
+        <div class="flex-item flex-container-desktop">
+            <div class="flex-item-desktop full-height">
+                <UserList :userList="matchData.users" :isHost="isHost"></UserList>
+            </div>
+            <div class="content-separator-vertical"></div>
+            <div class="flex-item-desktop full-height">
+                <div class="ui-container">
+                    <h2>Match status</h2>
+                </div>
+            </div>
+            <div class="flex-item-desktop full-height">
+                <div class="ui-container">
+                    <h2>Map pool</h2>
+                </div>
+            </div>
+        </div>
     </div>
+
+    
 </template>
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import io from "socket.io-client";
+
+import UserList from "@/components/Match/UserList.vue";
+
 import ApiService from "@/api-service";
 
 import swal from "sweetalert2";
+import io from "socket.io-client";
 
 import { config } from "../config";
 
 @Component({
-
+    components: {
+        UserList
+    }
 })
 export default class Match extends Vue {
     private matchCode: string = "";
     private matchData: any = null;
+    private isHost: boolean = false;
     private selfDisconnected: boolean = false;
 
     private matchDataUpdatedTimestamp: number = 0;
@@ -28,6 +55,9 @@ export default class Match extends Vue {
     });
 
     created() {
+        // Set spinner
+        this.$store.commit("_setGlobalSpinner", { show: true, instant: false });
+
         // Get code from route id
         this.matchCode = this.$route.params.code;
         if (!this.matchCode) {
@@ -52,7 +82,7 @@ export default class Match extends Vue {
             if (this.selfDisconnected) {
                 this.$router.push("/");
                 return;
-            } 
+            }
 
             swal(
                 "Match feed connection lost.", 
@@ -80,10 +110,16 @@ export default class Match extends Vue {
                         });
                     }
                     
+                    // First update
+                    if (!this.matchData) {
+                        this.$store.commit("_setGlobalSpinner", { show: false, instant: false });
+                    }
+
                     // Only allow the latest update
                     if (this.matchDataUpdatedTimestamp < data.timestamp) {
                         this.matchDataUpdatedTimestamp = data.timestamp;
                         this.matchData = data.data;
+                        this.isHost = data.isHost;
                     }
 
                 });

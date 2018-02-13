@@ -6,6 +6,7 @@ $common-text-color-light: #e4e6dd;
 $common-accent-color: #c47a26;
 $common-accent-color-dark: #995b14;
 $common-accent-color-light: #e2953e;
+$common-accent-color-lighter: #f3a954;
 
 /* Solid colors */
 
@@ -133,7 +134,44 @@ body, html {
 }
 
 .content-separator {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    border-top: 2px solid $common-accent-color-dark;
+}
 
+.content-separator-vertical {
+
+}
+
+.ui-container {
+    background-color: $common-background-color-dark;
+    padding: 1em;
+    margin: 0.5em;
+    h2 {
+        margin: 0;
+    }
+}
+
+.twitch-badge {
+    height: 24px;
+    width: 24px;
+    margin-left: 10px;
+    background-color: white;
+
+    -webkit-user-select: none;  
+    -moz-user-select: none;    
+    -ms-user-select: none;      
+    user-select: none;
+}
+
+.host-badge {
+    height: 32px;
+    width: 32px;
+
+    -webkit-user-select: none;  
+    -moz-user-select: none;    
+    -ms-user-select: none;      
+    user-select: none;
 }
 
 /* Custom input fields */

@@ -86,13 +86,6 @@ export default class UserNavDisplay extends Vue {
         color: $common-accent-color;
     }
 
-    .twitch-badge {
-        height: 24px;
-        width: 24px;
-        margin-left: 10px;
-        background-color: white;
-    }
-
     .nav-user-name-display {
         position: relative;
     }

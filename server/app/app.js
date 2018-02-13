@@ -328,15 +328,24 @@ module.exports = function() {
             return;
         }
 
+        let currentUser = getUserObject(req.session, req.sessionID);
+
         matches.findOne({ "code": req.params.code }, (err, doc) => {
             // Clean the user IDs from the users array and the host
             let match = doc;
             match.users = match.users.map((user) => { 
-                return { name: user.name, guest: user.guest };
+                return { name: user.name, guest: user.guest, host: user.id === match.host.id };
             });
+
+            let hostId = match.host.id;
             match.host = new User(match.host.name, match.host.guest);
 
-            res.status(200).send({ result: true, data: match, timestamp: Date.now() });
+            res.status(200).send({ 
+                result: true, 
+                data: match, 
+                timestamp: Date.now(), 
+                isHost: currentUser.id === hostId
+            });
         });
     });
 

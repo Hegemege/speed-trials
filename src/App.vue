@@ -47,16 +47,16 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import UserNameInput from "@/components/user-name-input.vue";
-import TwitchLogin from "@/components/twitch-login.vue";
-import UserNavDisplay from "@/components/user-nav-display.vue";
+import UserNameInput from "@/components/UserNameInput.vue";
+import TwitchLogin from "@/components/TwitchLogin.vue";
+import UserNavDisplay from "@/components/UserNavDisplay.vue";
 import History from "@/views/History.vue";
 import GlobalHelpers from "@/mixins.ts";
 import CookieLaw from "vue-cookie-law";
 
 import ApiService from "@/api-service";
 
-import OrbitSpinner from "@/components/orbit-spinner.vue";
+import OrbitSpinner from "@/components/OrbitSpinner.vue";
 
 import swal from "sweetalert2";
 
