@@ -25,7 +25,7 @@ const ioApp = {
 
             socket.on("disconnect", function() {
                 // User disconnected
-                if (config.ENV === "dev") console.log("user disconnected", socket.id);
+                if (config.ENV === "dev") console.log("socket disconnected", socket.id);
 
                 // Remove them from all rooms (if necessary)
             });
@@ -72,6 +72,7 @@ const ioApp = {
                 let disconnected = false; // Set to true if disconnected and unable to return
                 if (!utils.validateSocket(socket)) {
                     // Validation failed, disconnect the socket
+                    if (config.ENV === "dev") console.log("Invalid user in socket", );
                     socket.disconnect();
                     return;
                 }
@@ -79,13 +80,15 @@ const ioApp = {
                 // User requests access to the match
                 // Sanitize the input first
                 if (!validator.isAlphanumeric(code) || !validator.isLength(code, { min: 7, max: 7 })) {
+                    if (config.ENV === "dev") console.log("Invalid connect match code");
                     socket.disconnect();
                     return;
                 }
 
-                // If user provided a bad match code, disconnect them
                 app.locals.matches.findOne({ "code": code }, (err, doc) => {
+                    // If user provided a bad match code, disconnect them
                     if (doc === null) {
+                        if (config.ENV === "dev") console.log("Socket tried to connect to a nonexisting match");
                         socket.disconnect();
                         return;
                     }
@@ -94,10 +97,25 @@ const ioApp = {
 
                     // Otherwise, assign them to the correct room
                     let roomName = "room-" + code;
-                    socket.join(roomName);
 
-                    // User has been validated via validateSocket
+                    // Allows updates to be transmitted to this socket even though the user
+                    // might not be a participant
+                    socket.join(roomName); 
+
+                    // User has already been validated via validateSocket
                     let newUser = utils.getUserObject(socket.handshake.session, socket.handshake.sessionID);
+
+                    // If the room has not started, add the user to the participants list
+                    if (match.started) {
+                        if (config.ENV === "dev") console.log("Match", code, "has already started");
+                        return;
+                    }
+
+                    // Check if match joining has been disabled
+                    if (!match.allowJoin) {
+                        if (config.ENV === "dev") console.log("Match", code, "has disallowed joining");
+                        return;
+                    }
 
                     // If user is not already in the match, add them and update the match
                     let found = match.users.findIndex(user => user.id === newUser.id);
@@ -105,13 +123,13 @@ const ioApp = {
                     if (found === -1) {
                         app.locals.matches.update({ "code": code }, 
                         { $push: { users: newUser } }, 
-                        { returnUpdatedDocs: true }, 
-                        (err, numAffected, affectedDocuments, upsert) => {
+                        { }, 
+                        (err, numAffected) => {
                             // Tell whole room to get newest match info
                             io.in(roomName).emit("match-updated"); 
                         });
                     } else {
-                        // If user is already in match, just tell them to get new match data
+                        // If user is already in match, just tell them to get new match data without having to inform others
                         socket.emit("match-updated"); 
                     }
                     

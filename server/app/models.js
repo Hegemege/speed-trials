@@ -7,6 +7,7 @@ class Match {
         this.mapPool = []; // Chosen mappool
         this.started = false;
         this.ended = false;
+        this.allowJoin = true;
     }
 }
 

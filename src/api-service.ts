@@ -23,6 +23,15 @@ export default class ApiService {
             });
     }
 
+    public static checkMatchExists(code: string): Promise<any> {
+        return axios.post(this.apiURL + "/match/exists/" + code, { }, { withCredentials: true })
+            .then((res) => {
+                return res.data;
+            }).catch((error) => {
+                return ApiService.handleErrorMessage(error);
+            });
+    }
+
     public static renameMatch(code: string, name: string): Promise<any> {
         return axios.post(this.apiURL + "/match/rename/" + code, { name: name }, { withCredentials: true })
             .then((res) => {

@@ -5,7 +5,32 @@ var config = require("../config/config");
 var utils = require("./utils");
 var Models = require("./models");
 
-// API routes that touch the DB
+// API routes that handle matches
+router.post("/exists/:code", function(req, res) {
+    let user = utils.getUserObject(req.session, req.sessionID);
+    if (!utils.validateLoggedIn(user)) return;
+
+    if (!utils.validateMatchCodeParam(req, res)) return;
+
+    let code = req.params.code;
+
+    req.app.locals.matches.find({ code: code }, (err, docs) => {
+        if (err) {
+            console.log("Error while finding match by code " + code + ": " + err);
+            res.status(500).send({ result: false, error: "Internal server error."});
+            return;
+        }
+        if (docs.length === 0) {
+            res.status(400).send({ result: false, error: "Match with code \"" + code + "\" not found" });
+            return;
+        }
+
+        // Will return the code to be used to join
+        // Otherwise a user might accidentally type more letters while joining if using a client code
+        res.status(200).send({ result: true, code: code }); 
+    });
+});
+
 router.post("/create", function(req, res) {
     let user = utils.getUserObject(req.session, req.sessionID);
     if (!utils.validateLoggedIn(user)) return;
@@ -34,17 +59,17 @@ router.post("/create", function(req, res) {
             res.status(400).send({ result: false, error: "Jackpot! Room already exists. That's a 1 in 64^7 chance!" });
             return;
         }
-    });
 
-    req.app.locals.matches.insert(match, (err, docs) => {
-        if (err) {
-            console.log("Error while inserting match:", match, ":", err);
-            res.status(500).send({ result: false, error: "Internal server error." });
-            return;
-        }
+        req.app.locals.matches.insert(match, (err, docs) => {
+            if (err) {
+                console.log("Error while inserting match:", match, ":", err);
+                res.status(500).send({ result: false, error: "Internal server error." });
+                return;
+            } else {
+                res.status(200).send({ result: true, code: code });
+            }
+        });
     });
-
-    res.status(200).send({ result: true, code: code });
 });
 
 router.post("/rename/:code", function(req, res) {

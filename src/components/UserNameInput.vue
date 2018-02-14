@@ -32,6 +32,13 @@ export default class UserNameInput extends Vue {
             return;
         }
 
+        if (!this.playerName.match(/^[a-zA-Z0-9_]{3,25}$/)) {
+            swal("Invalid username", 
+                "Guest name can contain a-z, A-Z, 0-9 or an underscore, and must be 3 to 25 symbols long.", 
+                "error");
+            return;
+        }
+
         this.$store.commit("_setGlobalSpinner", { show : true, instant: false });
 
         this.$store.dispatch("setUserName", this.playerName)

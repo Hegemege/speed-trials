@@ -44,11 +44,7 @@ export default class UserList extends Vue {
     public userList!: any[];
     public isHost!: boolean; // Whether the current user is the host. Used to display host-only features
 
-    created() {
-        this.userList.push({ name: "test", guest: false, host: false });
-        this.userList.push({ name: "test 2", guest: true, host: false });
-        this.userList.push({ name: "test 3", guest: false, host: false });
-    }
+    
 }
 </script>
 

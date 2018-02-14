@@ -49,7 +49,9 @@ let utils = {
     },
     
     validateMatchCodeParam: function(req, res) {
-        req.checkParams("code", "Invalid code.").isAlphanumeric();
+        req.checkParams("code", "Invalid code. Match codes are alphanumeric 7-symbol combinations")
+            .isAlphanumeric()
+            .isLength({ min: 7, max: 7 });
         let errors = req.validationErrors();
         if (errors) {
             res.status(400).send({ result: false, validationErrors: errors });

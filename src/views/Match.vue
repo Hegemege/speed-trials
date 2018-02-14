@@ -1,10 +1,18 @@
 <template>
     <div v-if="matchData" 
          class="match flex-item flex-container flex-container-vertical">
-        <div class="match-title-row flex-container flex-align-center spinner-container">
+        <div class="spinner-container">
             <OrbitSpinner :show="nameSpinnerVisible"></OrbitSpinner>
-            <h1>{{ matchData.name }}</h1>
-            <span v-if="isHost" v-on:click="renameMatch" class="rename-button">Rename</span>
+            <div class="match-title-row flex-container flex-align-center">
+                <div class="flex-container flex-align-center">
+                    <h1>{{ matchData.name }}</h1>
+                    <span v-if="isHost" v-on:click="renameMatch" class="rename-button">Rename</span>
+                </div>
+                <div>
+                    <span>Invite code: </span>
+                    <span class="match-code">{{ matchCode }}</span>
+                </div>
+            </div>
         </div>
         <div class="flex-item flex-container-desktop">
             <div class="flex-item-desktop full-height">
@@ -23,8 +31,9 @@
             </div>
         </div>
     </div>
-
-    
+    <div v-else>
+        <h1>Joining... ({{ matchCode }})</h1>
+    </div>
 </template>
 
 <script lang="ts">
@@ -149,6 +158,7 @@ export default class Match extends Vue {
         }).then((result: any) => {
             if (result.value !== undefined) {
                 this.nameSpinnerVisible = true;
+
                 ApiService.renameMatch(this.matchCode, result.value)
                     .then((data: any) => {
                         if (!data.result) {
@@ -175,6 +185,8 @@ export default class Match extends Vue {
 
 .match-title-row {
     padding-left: 1em;
+
+    justify-content: space-between;
 }
 
 .rename-button {
