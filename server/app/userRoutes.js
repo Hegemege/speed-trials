@@ -24,8 +24,10 @@ router.get("/", function(req, res) {
 router.post("/", function(req, res) {
     if (req.body["guestName"] === "") {
         // User wants to reset their user credentials
-        // Reset session.passport to null
-        req.session.passport = null;
+        // Destroy the session and regenerate a new one for them
+        req.session.destroy(() => {
+            // Empty callback, otherwise NeDB breaks?
+        });
         res.status(200).send({ result: true });
         return;
     }

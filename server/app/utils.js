@@ -82,9 +82,7 @@ let utils = {
     
         let name = user.name;
         let guest = user.guest;
-        let id = user.guest ? 
-            session.passport.user._id :
-            sessionID;
+        let id = user.guest ? sessionID : session.passport.user._id;
     
         return new Models.User(name, guest, id);
     },

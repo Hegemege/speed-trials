@@ -2,18 +2,27 @@
     <div v-if="matchData" 
          class="match flex-item flex-container flex-container-vertical">
         <div class="spinner-container">
-            <OrbitSpinner :show="nameSpinnerVisible"></OrbitSpinner>
+            <OrbitSpinner :show="titleSpinnerVisible"></OrbitSpinner>
             <div class="match-title-row flex-container flex-align-center">
                 <div class="flex-container flex-align-center">
                     <h1>{{ matchData.name }}</h1>
                     <span v-if="isHost" v-on:click="renameMatch" class="rename-button noselect">Rename</span>
                 </div>
-                <div class="flex-container flex-align-center flex-wrap">
-                    <span class="noselect match-code-label">Invite code:</span>
-                    <div class="match-code">
-                        <span>{{ matchCode }}</span>
+                <div class="flex-container flex-align-stretch">
+                    <div v-if="isHost" class="flex-container flex-align-center">
+                        <input type="checkbox" 
+                               id="canJoinCheckbox" 
+                               v-model="canJoinCheckbox"
+                               v-on:change="onJoinCheckboxChanged()">
+                        <label for="canJoinCheckbox">Allow joining</label>
                     </div>
-                    
+                    <div class="content-separator-vertical"></div>
+                    <div v-if="matchData.allowJoin" class="flex-container flex-align-center flex-wrap">
+                        <span class="noselect match-code-label">Invite code:</span>
+                        <div class="match-code">
+                            <span>{{ matchCode }}</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -63,6 +72,7 @@ export default class Match extends Vue {
     private matchData: any = null;
     private isHost: boolean = false;
     private selfDisconnected: boolean = false;
+    private canJoinCheckbox: boolean = true;
 
     private matchDataUpdatedTimestamp: number = 0;
 
@@ -70,7 +80,7 @@ export default class Match extends Vue {
         reconnection: false
     });
 
-    private nameSpinnerVisible: boolean = false;
+    private titleSpinnerVisible: boolean = false;
 
     created() {
         // Set spinner
@@ -91,9 +101,19 @@ export default class Match extends Vue {
 
         // Open websocket
         this.socket.on("connect", () => {
+            this.$store.commit("_setGlobalSpinner", { show: false, instant: false });
             // Tell the server that the client requests access to the match code
             this.socket.emit("connect-match-code", this.matchCode);
         })
+
+        this.socket.on("unable-to-join", (data: any) => {
+            swal(
+                "Uh-oh!", 
+                data.errorMessage, 
+                "error"
+            );
+            this.$router.push("/");
+        });
 
         this.socket.on("disconnect", () => {
             this.socket.io.reconnection(false);
@@ -113,7 +133,9 @@ export default class Match extends Vue {
 
         this.socket.on("match-updated", () => {
             // Match has been updated. Get the newest match data from server API
-
+            if (!this.matchData) { // First update
+                this.$store.commit("_setGlobalSpinner", { show: true, instant: false });
+            }
             ApiService.getMatch(this.matchCode)
                 .then((data: any) => {
                     if (!data.result) {
@@ -160,7 +182,7 @@ export default class Match extends Vue {
             inputValue: this.matchData.name
         }).then((result: any) => {
             if (result.value !== undefined) {
-                this.nameSpinnerVisible = true;
+                this.titleSpinnerVisible = true;
 
                 ApiService.renameMatch(this.matchCode, result.value)
                     .then((data: any) => {
@@ -177,7 +199,42 @@ export default class Match extends Vue {
     }
 
     setLoadingSpinners(value: boolean) {
-        this.nameSpinnerVisible = value;
+        this.titleSpinnerVisible = value;
+    }
+
+    onJoinCheckboxChanged() {
+        swal({
+            title: this.canJoinCheckbox ? "Allow joining?" : "Disallow joining?",
+            showCancelButton: true,
+            focusConfirm: true,
+        }).then((status: any) => {
+            if (status.dismiss) {
+                this.canJoinCheckbox = !this.canJoinCheckbox;
+            } else {
+                this.titleSpinnerVisible = true;
+
+                // Send the update to server
+                ApiService.allowJoinMatch(this.matchCode, this.canJoinCheckbox)
+                    .then((data: any) => {
+                        this.titleSpinnerVisible = false;
+                        if (data.result) {
+                            swal(
+                                "Success", 
+                                this.canJoinCheckbox ? 
+                                    "Users can now join this match" : 
+                                    "Users can no longer join this match", 
+                                "success"
+                            );
+                        } else {
+                            swal(
+                                "Error", 
+                                "Unable to change join status. Reason: " + data.errorMessage, 
+                                "error"
+                            );
+                        }
+                    });
+            }
+        });
     }
 }
 </script>

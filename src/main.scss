@@ -97,6 +97,10 @@ $common-font-line-height: 1.5em;
     align-items: center;
 }
 
+.flex-align-stretch {
+    align-items: stretch;
+}
+
 .flex-wrap {
     flex-wrap: wrap;
 }

@@ -107,13 +107,17 @@ const ioApp = {
 
                     // If the room has not started, add the user to the participants list
                     if (match.started) {
-                        if (config.ENV === "dev") console.log("Match", code, "has already started");
+                        let message = "Unable to join. Match " + code + " has already started."
+                        if (config.ENV === "dev") console.log(message);
+                        socket.emit("unable-to-join", { result: false, errorMessage: message }); 
                         return;
                     }
 
                     // Check if match joining has been disabled
                     if (!match.allowJoin) {
-                        if (config.ENV === "dev") console.log("Match", code, "has disallowed joining");
+                        let message = "Unable to join. Match " + code + " has disallowed joining."
+                        if (config.ENV === "dev") console.log(message);
+                        socket.emit("unable-to-join", { result: false, errorMessage: message }); 
                         return;
                     }
 
@@ -130,6 +134,7 @@ const ioApp = {
                         });
                     } else {
                         // If user is already in match, just tell them to get new match data without having to inform others
+                        if (config.ENV === "dev") console.log("User is already in match.");
                         socket.emit("match-updated"); 
                     }
                     

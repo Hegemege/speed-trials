@@ -41,6 +41,15 @@ export default class ApiService {
             });
     }
 
+    public static allowJoinMatch(code: string, allow: boolean): Promise<any> {
+        return axios.post(this.apiURL + "/match/allow-join/" + code, { allow: allow }, { withCredentials: true })
+            .then((res) => {
+                return res.data;
+            }).catch((error) => {
+                return ApiService.handleErrorMessage(error);
+            });
+    }
+
     public static getMatch(code: string): Promise<any> {
         return axios.get(this.apiURL + "/match/" + code, { withCredentials: true })
             .then((res) => {

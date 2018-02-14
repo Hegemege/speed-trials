@@ -5,6 +5,9 @@ var config = require("../config/config");
 var utils = require("./utils");
 var Models = require("./models");
 
+
+
+
 // API routes that handle matches
 router.post("/exists/:code", function(req, res) {
     let user = utils.getUserObject(req.session, req.sessionID);
@@ -30,6 +33,9 @@ router.post("/exists/:code", function(req, res) {
         res.status(200).send({ result: true, code: code }); 
     });
 });
+
+
+
 
 router.post("/create", function(req, res) {
     let user = utils.getUserObject(req.session, req.sessionID);
@@ -71,6 +77,9 @@ router.post("/create", function(req, res) {
         });
     });
 });
+
+
+
 
 router.post("/rename/:code", function(req, res) {
     let user = utils.getUserObject(req.session, req.sessionID);
@@ -119,6 +128,59 @@ router.post("/rename/:code", function(req, res) {
         });
     });
 });
+
+
+
+
+router.post("/allow-join/:code", function(req, res) {
+    let user = utils.getUserObject(req.session, req.sessionID);
+    if (!utils.validateLoggedIn(user)) return;
+
+    if (!utils.validateMatchCodeParam(req, res)) return;
+
+    // Validate the new name
+    req.checkBody("allow", "Internal server error").isBoolean();
+
+    var errors = req.validationErrors();
+    if (errors) {
+        res.status(400).send({ result: false, validationErrors: errors });
+        return;
+    }
+
+    // Update the status to DB and inform everyone in the room
+    let allowJoin = req.body["allow"];
+
+    req.app.locals.matches.findOne({ "code": req.params.code }, (err, doc) => {
+        if (!doc || err) {
+            res.status(400).send({result: false, error: "Match not found" });
+            return;
+        }
+
+        // Make sure the user is the host of the match
+        let match = doc;
+
+        if (match.host.id !== user.id) {
+            res.status(400).send({ result: false, error: "You are not the host" });
+            return;
+        }
+
+        // Update the match and save it to DB
+        match.allowJoin = allowJoin;
+        req.app.locals.matches.update({ "code": req.params.code }, { $set: { "allowJoin": allowJoin } }, (err, numAffected) => {
+            if (err || numAffected !== 1) {
+                res.status(500).send({ result: false, error: "Internal server error" });
+                console.log("Unable to update match", req.params.code, ":", err, "numAffected", numAffected);
+                return;
+            }
+
+            res.status(200).send({ result: true });
+        });
+    });
+});
+
+
+
+
 
 router.get("/:code", function(req, res) {
     // First, validate the code
