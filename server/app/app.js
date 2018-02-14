@@ -26,6 +26,7 @@ var config = require("../config/config");
 
 // Input validation
 var expressValidator = require("express-validator");
+const { check, body, validationResult } = require('express-validator/check');
 var validator = require("validator");
 
 // Object definitions
@@ -69,8 +70,11 @@ MATCH_CODE_LENGTH = 7;
 module.exports = function() {
     const app = express();
 
-    // Serve static files out of public/
-    app.use(express.static(path.join(__dirname, "public")));
+    // Serve static files out of public/ if in dev
+    if (config.ENV === "dev") {
+        app.use(express.static(path.join(__dirname, "public")));
+    }
+
     app.use(cors({ credentials: true, origin: true }));
     app.use(bodyParser.json());
 
@@ -231,52 +235,6 @@ module.exports = function() {
         res.status(200).send({ message: "success" });
     });
 
-    // API routes that touch the DB
-    app.post("/api/create-match", function(req, res) {
-        let user = validateUser(req.session);
-        if (!user.valid) {
-            res.status(403).send({ error: "User is not logged in." });
-            return;
-        }
-
-        // Users can create matches in dev mode
-        if (user.guest && config.ENV !== "dev") {
-            res.status(403).send({ 
-                error: "Guests can not create matches. Please log out from the navigation bar, and log back in via Twitch." 
-            });
-            return;
-        }
-
-        let userObject = getUserObject(req.session, req.sessionID);
-
-        let code = getNewMatchCode();
-        let match = new Match("Match " + code, code, userObject);
-
-        // First test if code is already in use.
-        // 1 in 64^7 chance, we need to celebrate it!
-        matches.find({ code: code }, (err, docs) => {
-            if (err) {
-                console.log("Error while finding match by code " + code + ": " + err);
-                res.status(500).send({ error: "Internal server error."});
-                return;
-            }
-            if (docs.length !== 0) {
-                res.status(400).send({ error: "Jackpot! Room already exists. That's a 1 in 64^7 chance!" });
-                return;
-            }
-        });
-
-        matches.insert(match, (err, docs) => {
-            if (err) {
-                console.log("Error while inserting match: " + match + ": " + err);
-                res.status(500).send({ error: "Internal server error." });
-                return;
-            }
-        });
-
-        res.status(200).send({ result: true, code: code });
-    });
-
     app.get("/api/user", function(req, res) {
         if (req.session.passport && req.session.passport.user) {
             if (req.session.passport.user.speed_trials_guest_name) {
@@ -292,19 +250,19 @@ module.exports = function() {
     app.post("/api/user", function(req, res) {
         if (req.body["guestName"] === "") {
             // User wants to reset their user credentials
-            // Set session.passport to null
+            // Reset session.passport to null
             req.session.passport = null;
             res.status(200).send({ result: true });
             return;
         }
 
         req.checkBody("guestName", 
-        "Guest name can contain a-z, A-Z, 0-9 or an underscore, and must be 4 to 25 symbols.")
-        .matches("^[a-zA-Z0-9_]{4,25}$");
+        "Guest name can contain a-z, A-Z, 0-9 or an underscore, and must be 4 to 25 symbols long.")
+        .matches(/^[a-zA-Z0-9_]{4,25}$/);
 
         var errors = req.validationErrors();
         if (errors) {
-            res.status(200).send({ result: false, validationErrors: errors });
+            res.status(400).send({ result: false, validationErrors: errors });
             return;
         } else {
             // Empty the passport.user and assign .speed_trials_guest_name
@@ -318,26 +276,124 @@ module.exports = function() {
         }
     });
 
-    app.get("/api/match/:code", function(req, res) {
-        // Public API, return cleaned match data
-        // First, validate the code
-        req.checkParams("code", "Invalid code.").isAlphanumeric();
-        var errors = req.validationErrors();
-        if (errors) {
-            res.status(200).send({ result: false, validationErrors: errors });
+    // API routes that touch the DB
+    app.post("/api/create-match", function(req, res) {
+        let user = getUserObject(req.session, req.sessionID);
+        if (!validateLoggedIn(user)) return;
+
+        // Users can create matches in dev mode
+        if (user.guest && config.ENV !== "dev") {
+            res.status(403).send({ 
+                result: false,
+                error: "Guests can not create matches. Please log out from the navigation bar, and log back in via Twitch." 
+            });
             return;
         }
 
-        let currentUser = getUserObject(req.session, req.sessionID);
+        let code = getNewMatchCode();
+        let match = new Match("Match " + code, code, user);
+
+        // First test if code is already in use.
+        // 1 in 64^7 chance, we need to celebrate it!
+        matches.find({ code: code }, (err, docs) => {
+            if (err) {
+                console.log("Error while finding match by code " + code + ": " + err);
+                res.status(500).send({ result: false, error: "Internal server error."});
+                return;
+            }
+            if (docs.length !== 0) {
+                res.status(400).send({ result: false, error: "Jackpot! Room already exists. That's a 1 in 64^7 chance!" });
+                return;
+            }
+        });
+
+        matches.insert(match, (err, docs) => {
+            if (err) {
+                console.log("Error while inserting match:", match, ":", err);
+                res.status(500).send({ result: false, error: "Internal server error." });
+                return;
+            }
+        });
+
+        res.status(200).send({ result: true, code: code });
+    });
+
+    app.post("/api/rename-match/:code", function(req, res) {
+        let user = getUserObject(req.session, req.sessionID);
+        if (!validateLoggedIn(user)) return;
+
+        if (!validateMatchCodeParam(req, res)) return;
+
+        // Validate the new name
+        req.checkBody("name", 
+        "Match name can contain a-z, A-Z, 0-9, -, _ or a space and must be 1 to 100 symbols long.")
+        .matches(/^[a-zA-Z0-9_\-\s]{1,100}$/);
+
+        var errors = req.validationErrors();
+        if (errors) {
+            res.status(400).send({ result: false, validationErrors: errors });
+            return;
+        }
+
+        // Update the name to DB and inform everyone in the room
+        let name = req.body["name"];
 
         matches.findOne({ "code": req.params.code }, (err, doc) => {
+            if (!doc || err) {
+                res.status(400).send({result: false, error: "Match not found" });
+                return;
+            }
+
+            // Make sure the user is the host of the match
+            let match = doc;
+
+            if (match.host.id !== user.id) {
+                res.status(400).send({ result: false, error: "You are not the host" });
+                return;
+            }
+
+            // Update the match and save it to DB
+            match.name = name;
+            matches.update({ "code": req.params.code }, { $set: { "name": name } }, (err, numAffected) => {
+                if (err || numAffected !== 1) {
+                    res.status(500).send({ result: false, error: "Internal server error" });
+                    console.log("Unable to update match", req.params.code, ":", err, "numAffected", numAffected);
+                    return;
+                }
+
+                res.status(200).send({ result: true });
+            });
+        });
+    });
+
+
+
+    app.get("/api/match/:code", function(req, res) {
+        // First, validate the code
+        if (!validateMatchCodeParam(req, res)) return;
+
+        let currentUser = getUserObject(req.session, req.sessionID);
+        if (!validateLoggedIn(currentUser)) return;
+
+        matches.findOne({ "code": req.params.code }, (err, doc) => {
+            if (!doc || err) {
+                res.status(400).send({ error: "Match not found" });
+                return;
+            }
+
             // Clean the user IDs from the users array and the host
             let match = doc;
+            let hostId = match.host.id;
+
             match.users = match.users.map((user) => { 
-                return { name: user.name, guest: user.guest, host: user.id === match.host.id };
+                return { 
+                    name: user.name, 
+                    guest: user.guest, 
+                    host: user.id === hostId, 
+                    you: user.id === currentUser.id 
+                };
             });
 
-            let hostId = match.host.id;
             match.host = new User(match.host.name, match.host.guest);
 
             res.status(200).send({ 
@@ -373,6 +429,44 @@ module.exports = function() {
                     // Remove them from all rooms (if necessary)
                 });
 
+                /**
+                 * The host has updated the match, tell others to update
+                 */
+                socket.on("host-update", function(code) {
+                    if (!validateSocket(socket)) {
+                        // Validation failed, disconnect the socket
+                        socket.disconnect();
+                        return;
+                    }
+
+                    // User requests access to the match
+                    // Sanitize the input first
+                    if (!validator.isAlphanumeric(code) || !validator.isLength(code, { min: 7, max: 7 })) {
+                        socket.disconnect();
+                        return;
+                    }
+
+                    // If user provided a bad match code, disconnect them
+                    matches.findOne({ "code": code }, (err, doc) => {
+                        if (doc === null) {
+                            socket.disconnect();
+                            return;
+                        }
+
+                        // Make sure they are the host
+                        let match = doc;
+                        let user = getUserObject(socket.handshake.session, socket.handshake.sessionID);
+                        if (match.host.id !== user.id) {
+                            socket.disconnect();
+                            return;
+                        }
+                        
+                        // Otherwise, assign them to the correct room
+                        let roomName = "room-" + code;
+                        io.in(roomName).emit("match-updated");
+                    });
+                });
+
                 socket.on("connect-match-code", function(code) {
                     let disconnected = false; // Set to true if disconnected and unable to return
                     if (!validateSocket(socket)) {
@@ -401,8 +495,9 @@ module.exports = function() {
                         let roomName = "room-" + code;
                         socket.join(roomName);
 
+                        // User has been validated via validateSocket
                         let newUser = getUserObject(socket.handshake.session, socket.handshake.sessionID);
-                        
+
                         // If user is not already in the match, add them and update the match
                         let found = match.users.findIndex(user => user.id === newUser.id);
 
@@ -471,6 +566,25 @@ function validateUser(session) {
     return { valid: false };
 }
 
+function validateLoggedIn(userObject, res) {
+    if (userObject === null) {
+        res.status(403).send({ result: false, error: "User is not logged in" });
+        return false;
+    }
+
+    return true;
+}
+
+function validateMatchCodeParam(req, res) {
+    req.checkParams("code", "Invalid code.").isAlphanumeric();
+    let errors = req.validationErrors();
+    if (errors) {
+        res.status(400).send({ result: false, validationErrors: errors });
+        return false;
+    }
+    return true;
+}
+
 function validateSocket(socket) {
     // Check if session exists
     let session = socket.handshake.session;
@@ -489,6 +603,8 @@ function validateSocket(socket) {
 
 function getUserObject(session, sessionID) {
     let user = validateUser(session);
+    if (!user.valid) return null;
+
     let name = user.name;
     let guest = user.guest;
     let id = user.guest ? 

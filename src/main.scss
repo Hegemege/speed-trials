@@ -139,8 +139,22 @@ body, html {
     border-top: 2px solid $common-accent-color-dark;
 }
 
-.content-separator-vertical {
+.content-separator-large {
+    margin-top: 1.5em;
+    margin-bottom: 1.5em;
+    border-top: 2px solid $common-accent-color-dark;
+}
 
+.content-separator-vertical {
+    margin-left: 0.5em;
+    margin-right: 0.5em;
+    border-left: 2px solid $common-accent-color-dark;
+}
+
+.content-separator-vertical-large {
+    margin-left: 1.5em;
+    margin-right: 1.5em;
+    border-left: 2px solid $common-accent-color-dark;
 }
 
 .ui-container {
@@ -150,6 +164,10 @@ body, html {
     h2 {
         margin: 0;
     }
+}
+
+.spinner-container {
+    position: relative;
 }
 
 .twitch-badge {

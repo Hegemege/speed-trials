@@ -14,9 +14,11 @@
                      class="host-badge" 
                      src="../../assets/crown.svg">
             </div>
-            <div v-if="isHost">
-                <a v-if="user.host" class="kick-button">Leave</a>
-                <a v-else class="kick-button">Kick</a>
+            <div v-if="user.you">
+                <a class="kick-button">Leave</a>
+            </div>
+            <div v-else-if="isHost">
+                <a class="kick-button">Kick</a>
             </div>
         </div>
     </div>

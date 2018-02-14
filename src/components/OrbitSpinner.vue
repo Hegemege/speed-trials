@@ -1,7 +1,7 @@
 <template>
-    <div v-show="!instant || show">
+    <div v-show="!instantSpinner || showSpinner">
         <div class="overlay" :class="overlayClass"></div>
-        <div v-show="show" class="orbit-spinner" :style="spinnerStyle">
+        <div v-show="showSpinner" class="orbit-spinner" :style="spinnerStyle">
             <div class="orbit one" :style="orbitStyle"></div>
             <div class="orbit two" :style="orbitStyle"></div>
             <div class="orbit three" :style="orbitStyle"></div>
@@ -16,6 +16,10 @@ import { Component, Vue, Prop } from "vue-property-decorator";
 // Will change to their components when they offer native typings...
 @Component({
     props: {
+        global: {
+            default: false,
+            type: Boolean
+        },
         size: {
             default: 55,
             type: Number,
@@ -28,25 +32,36 @@ import { Component, Vue, Prop } from "vue-property-decorator";
             default: "#ff1d5e",
             type: String,
         },
+        show: {
+            default: true,
+            type: Boolean
+        },
+        instant: {
+            default: false,
+            type: Boolean
+        }
     },
 })
 export default class OrbitSpinner extends Vue {
+    public global!: boolean;
     public size!: number;
     public duration!: number;
     public color!: string;
+    public show!: boolean;
+    public instant!: boolean;
 
-    get show() {
-        return this.$store.state.globalSpinner.show;
+    get showSpinner() {
+        return this.global ? this.$store.state.globalSpinner.show : this.show;
     }
 
-    get instant() {
-        return this.$store.state.globalSpinner.instant;
+    get instantSpinner() {
+        return this.global ? this.$store.state.globalSpinner.instant : this.instant;
     }
 
     get overlayClass() {
         return [
-            this.show ? "visible" : "",
-            this.instant ? "instant" : "",
+            this.showSpinner ? "visible" : "",
+            this.instantSpinner ? "instant" : "",
         ];
     }
 
@@ -69,10 +84,6 @@ export default class OrbitSpinner extends Vue {
 <style scoped lang="scss">
 
 $target-opacity: 0.25;
-
-.spinner-container {
-
-}
 
 .overlay {
     height: 100%;
@@ -103,7 +114,7 @@ $target-opacity: 0.25;
 .orbit-spinner {
     position: absolute;
     left: 50%;
-    top: 50%;
+    top: calc(50% - 26px);
     border-radius: 50%;
     perspective: 800px;
 }

@@ -19,20 +19,25 @@ export default class ApiService {
                     link: res.data.link,
                 };
             }).catch((error) => {
-                return { result: false, errorMessage: error.response.data.error };
+                return ApiService.handleErrorMessage(error);
+            });
+    }
+
+    public static renameMatch(code: string, name: string): Promise<any> {
+        return axios.post(this.apiURL + "/rename-match/" + code, { name: name }, { withCredentials: true })
+            .then((res) => {
+                return res.data;
+            }).catch((error) => {
+                return ApiService.handleErrorMessage(error);
             });
     }
 
     public static getMatch(code: string): Promise<any> {
         return axios.get(this.apiURL + "/match/" + code, { withCredentials: true })
             .then((res) => {
-                if (!res.data.result) {
-                    return { result: false, errorMessage: res.data.validationErrors.map((error: any) => error.msg).join(", ") };
-                }
-
                 return res.data;
             }).catch((error) => {
-                return { result: false, errorMessage: error.response.data.error };
+                return ApiService.handleErrorMessage(error);
             });
     }
 
@@ -52,17 +57,20 @@ export default class ApiService {
 
         return axios.post(this.apiURL + "/user", body, { withCredentials: true })
             .then((res: any) => {
-                if (res.data.result) {
-                    return { result: true };
-                }
-
-                return {
-                    result: false,
-                    errorMessage: res.data.validationErrors.map((error: any) => error.msg).join(", "),
-                };
+                return res.data;
             }).catch((error) => {
-                return { result: false, errorMessage: "Unable to set guest name." };
+                return ApiService.handleErrorMessage(error);
             });
 
+    }
+
+    private static handleErrorMessage(error: any) {
+        return {
+            result: false,
+            errorMessage: 
+                (error.response.data.error !== undefined ? 
+                error.response.data.error :
+                error.response.data.validationErrors.map((error: any) => error.msg).join(", "))
+        };
     }
 }

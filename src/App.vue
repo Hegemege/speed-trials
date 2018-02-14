@@ -16,7 +16,7 @@
                 <router-link to="/history">History</router-link>
             </div>
         </div>
-        <OrbitSpinner></OrbitSpinner>
+        <OrbitSpinner :global="true"></OrbitSpinner>
         <router-view v-if="!isLoading && userName" class="content"></router-view>
         <div v-else-if="!isLoading && !userName" class="content">
             <div class="flex-item flex-container-desktop">
@@ -27,11 +27,10 @@
                         if you are just going to be joining SpeedTrial(tm) matches
                     </p>
                     <UserNameInput></UserNameInput>
-                    <div class="content-separator"></div>
                     <p>or</p>
                     <TwitchLogin></TwitchLogin>
                 </div>
-                <div class="content-separator-vertical"></div>
+                <div class="content-separator-vertical-large"></div>
                 <div class="flex-item-desktop full-height">
                     <History></History>
                 </div>

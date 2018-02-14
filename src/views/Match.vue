@@ -1,8 +1,10 @@
 <template>
     <div v-if="matchData" 
-         class="match flex-item flex-container-vertical">
-        <div>
+         class="match flex-item flex-container flex-container-vertical">
+        <div class="match-title-row flex-container flex-align-center spinner-container">
+            <OrbitSpinner :show="nameSpinnerVisible"></OrbitSpinner>
             <h1>{{ matchData.name }}</h1>
+            <span v-if="isHost" v-on:click="renameMatch" class="rename-button">Rename</span>
         </div>
         <div class="flex-item flex-container-desktop">
             <div class="flex-item-desktop full-height">
@@ -28,6 +30,7 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 
+import OrbitSpinner from "@/components/OrbitSpinner.vue";
 import UserList from "@/components/Match/UserList.vue";
 
 import ApiService from "@/api-service";
@@ -39,7 +42,8 @@ import { config } from "../config";
 
 @Component({
     components: {
-        UserList
+        UserList,
+        OrbitSpinner
     }
 })
 export default class Match extends Vue {
@@ -53,6 +57,8 @@ export default class Match extends Vue {
     private socket: any = io(config.serverHost, {
         reconnection: false
     });
+
+    private nameSpinnerVisible: boolean = false;
 
     created() {
         // Set spinner
@@ -122,6 +128,8 @@ export default class Match extends Vue {
                         this.isHost = data.isHost;
                     }
 
+                    this.setLoadingSpinners(false);
+
                 });
         })
     }
@@ -131,8 +139,52 @@ export default class Match extends Vue {
         this.socket.disconnect();
     }
 
-    getMatchInfo() {
-        
+    renameMatch() {
+        swal({
+            title: "Rename match", 
+            input: "text", 
+            showCancelButton: true,
+            confirmButtonText: "Rename",
+            inputValue: this.matchData.name
+        }).then((result: any) => {
+            if (result.value !== undefined) {
+                this.nameSpinnerVisible = true;
+                ApiService.renameMatch(this.matchCode, result.value)
+                    .then((data: any) => {
+                        if (!data.result) {
+                            swal("Error", "Unable to rename match. Reason: " + data.errorMessage, "error");
+                            return;
+                        }
+
+                        // The server will emit a "match-updated" message to everyone in the room
+                        this.socket.emit("host-update", this.matchCode);
+                    });
+            }
+        });
+    }
+
+    setLoadingSpinners(value: boolean) {
+        this.nameSpinnerVisible = value;
     }
 }
 </script>
+
+<style scoped lang="scss">
+
+@import "../main.scss";
+
+.match-title-row {
+    padding-left: 1em;
+}
+
+.rename-button {
+    margin-left: 1em;
+    color: $common-accent-color;
+
+    &:hover {
+        cursor: pointer;
+        color: $common-accent-color-lighter;
+    }
+}
+
+</style>
