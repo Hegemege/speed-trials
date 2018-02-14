@@ -6,11 +6,14 @@
             <div class="match-title-row flex-container flex-align-center">
                 <div class="flex-container flex-align-center">
                     <h1>{{ matchData.name }}</h1>
-                    <span v-if="isHost" v-on:click="renameMatch" class="rename-button">Rename</span>
+                    <span v-if="isHost" v-on:click="renameMatch" class="rename-button noselect">Rename</span>
                 </div>
-                <div>
-                    <span>Invite code: </span>
-                    <span class="match-code">{{ matchCode }}</span>
+                <div class="flex-container flex-align-center flex-wrap">
+                    <span class="noselect match-code-label">Invite code:</span>
+                    <div class="match-code">
+                        <span>{{ matchCode }}</span>
+                    </div>
+                    
                 </div>
             </div>
         </div>
@@ -187,6 +190,20 @@ export default class Match extends Vue {
     padding-left: 1em;
 
     justify-content: space-between;
+
+    .match-code-label {
+        margin-right: 0.5em;
+    }
+
+    .match-code {
+        text-align: center;
+        padding: 0.5em;
+        background-color: $common-background-color-dark;
+        margin: 0;
+        font-size: 20px;
+        border: 1px dashed $common-background-color-light;
+        font-family: "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace;
+    }
 }
 
 .rename-button {
