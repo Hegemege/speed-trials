@@ -102,6 +102,45 @@ const ioApp = {
                     // might not be a participant
                     socket.join(roomName); 
 
+                    let user = utils.getUserObject(socket.handshake.session, socket.handshake.sessionID);
+
+                    // Makes the host immediately join the match, 
+                    // others will have to manually participate (or not, to observe)
+                    socket.emit("match-connected", { instantJoin: user.id === match.host.id });
+                });
+
+                // socket.on("connect-match-code")...
+            });
+
+            socket.on("join-match", function(code) {
+                let disconnected = false; // Set to true if disconnected and unable to return
+                if (!utils.validateSocket(socket)) {
+                    // Validation failed, disconnect the socket
+                    if (config.ENV === "dev") console.log("Invalid user in socket", );
+                    socket.disconnect();
+                    return;
+                }
+
+                // User requests access to the match
+                // Sanitize the input first
+                if (!validator.isAlphanumeric(code) || !validator.isLength(code, { min: 7, max: 7 })) {
+                    if (config.ENV === "dev") console.log("Invalid connect match code");
+                    socket.disconnect();
+                    return;
+                }
+
+                app.locals.matches.findOne({ "code": code }, (err, doc) => {
+                    // If user provided a bad match code, disconnect them
+                    if (doc === null) {
+                        if (config.ENV === "dev") console.log("Socket tried to connect to a nonexisting match");
+                        socket.disconnect();
+                        return;
+                    }
+                    
+                    let match = doc;
+
+                    let roomName = "room-" + code;
+
                     // User has already been validated via validateSocket
                     let newUser = utils.getUserObject(socket.handshake.session, socket.handshake.sessionID);
 
@@ -140,7 +179,7 @@ const ioApp = {
                     
                 });
 
-                // socket.on("connect-match-code")...
+                // socket..on("join-match")...
             });
 
             // io.sockets.on("connection")...

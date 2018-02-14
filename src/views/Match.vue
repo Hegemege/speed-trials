@@ -3,10 +3,15 @@
          class="match flex-item flex-container flex-container-vertical">
         <div class="spinner-container">
             <OrbitSpinner :show="titleSpinnerVisible"></OrbitSpinner>
-            <div class="match-title-row flex-container flex-align-center">
+            <div class="match-title-row flex-container flex-align-center flex-wrap">
                 <div class="flex-container flex-align-center">
                     <h1>{{ matchData.name }}</h1>
                     <span v-if="isHost" v-on:click="renameMatch" class="rename-button noselect">Rename</span>
+                    <button v-if="notJoined && matchData.allowJoin && !matchData.started" 
+                        v-on:click="joinMatchPressed"
+                        class="join-match-button small-button">
+                        Join
+                    </button>   
                 </div>
                 <div class="flex-container flex-align-stretch">
                     <div v-if="isHost" class="flex-container flex-align-center">
@@ -17,7 +22,7 @@
                         <label for="canJoinCheckbox">Allow joining</label>
                     </div>
                     <div class="content-separator-vertical"></div>
-                    <div v-if="matchData.allowJoin" class="flex-container flex-align-center flex-wrap">
+                    <div v-if="matchData.allowJoin" class="flex-container flex-align-center">
                         <span class="noselect match-code-label">Invite code:</span>
                         <div class="match-code">
                             <span>{{ matchCode }}</span>
@@ -82,6 +87,12 @@ export default class Match extends Vue {
 
     private titleSpinnerVisible: boolean = false;
 
+    get notJoined() {
+        // If no user in data is marked as "you"
+        return this.matchData.users.findIndex((user: any) => user.you === true) === -1;
+    }
+
+
     created() {
         // Set spinner
         this.$store.commit("_setGlobalSpinner", { show: true, instant: false });
@@ -105,6 +116,14 @@ export default class Match extends Vue {
             // Tell the server that the client requests access to the match code
             this.socket.emit("connect-match-code", this.matchCode);
         })
+
+        this.socket.on("match-connected", (data: any) => {
+            if (data.instantJoin) {
+                this.joinMatchPressed();
+            } else {
+                this.getMatchData();
+            }
+        });
 
         this.socket.on("unable-to-join", (data: any) => {
             swal(
@@ -133,39 +152,43 @@ export default class Match extends Vue {
 
         this.socket.on("match-updated", () => {
             // Match has been updated. Get the newest match data from server API
-            if (!this.matchData) { // First update
-                this.$store.commit("_setGlobalSpinner", { show: true, instant: false });
-            }
-            ApiService.getMatch(this.matchCode)
-                .then((data: any) => {
-                    if (!data.result) {
-                        swal(
-                            "Uh-oh", 
-                            "Could not fetch match data. Error: " + data.errorMessage, 
-                            "error"
-                        ).then(() => {
-                            this.selfDisconnected = true;
-                            this.socket.disconnect();
-                            return;
-                        });
-                    }
-                    
-                    // First update
-                    if (!this.matchData) {
-                        this.$store.commit("_setGlobalSpinner", { show: false, instant: false });
-                    }
-
-                    // Only allow the latest update
-                    if (this.matchDataUpdatedTimestamp < data.timestamp) {
-                        this.matchDataUpdatedTimestamp = data.timestamp;
-                        this.matchData = data.data;
-                        this.isHost = data.isHost;
-                    }
-
-                    this.setLoadingSpinners(false);
-
-                });
+            this.getMatchData();
         })
+    }
+
+    getMatchData() {
+        if (!this.matchData) { // First update
+            this.$store.commit("_setGlobalSpinner", { show: true, instant: false });
+        }
+        ApiService.getMatch(this.matchCode)
+            .then((data: any) => {
+                if (!data.result) {
+                    swal(
+                        "Uh-oh", 
+                        "Could not fetch match data. Error: " + data.errorMessage, 
+                        "error"
+                    ).then(() => {
+                        this.selfDisconnected = true;
+                        this.socket.disconnect();
+                        return;
+                    });
+                }
+                
+                // First update
+                if (!this.matchData) {
+                    this.$store.commit("_setGlobalSpinner", { show: false, instant: false });
+                }
+
+                // Only allow the latest update
+                if (this.matchDataUpdatedTimestamp < data.timestamp) {
+                    this.matchDataUpdatedTimestamp = data.timestamp;
+                    this.matchData = data.data;
+                    this.isHost = data.isHost;
+                }
+
+                this.setLoadingSpinners(false);
+
+            });
     }
 
     destroyed() {
@@ -200,6 +223,10 @@ export default class Match extends Vue {
 
     setLoadingSpinners(value: boolean) {
         this.titleSpinnerVisible = value;
+    }
+
+    joinMatchPressed() {
+        this.socket.emit("join-match", this.matchCode);
     }
 
     onJoinCheckboxChanged() {
@@ -250,6 +277,10 @@ export default class Match extends Vue {
 
     .match-code-label {
         margin-right: 0.5em;
+    }
+
+    .join-match-button {
+        margin-left: 0.5em;
     }
 
     .match-code {

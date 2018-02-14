@@ -89,8 +89,8 @@ router.post("/rename/:code", function(req, res) {
 
     // Validate the new name
     req.checkBody("name", 
-    "Match name can contain a-z, A-Z, 0-9, -, _ or a space and must be 1 to 100 symbols long.")
-    .matches(/^[a-zA-Z0-9_\-\s]{1,100}$/);
+        "Match name can contain a-z, A-Z, 0-9, -, _ or a space and must be 1 to 100 symbols long.")
+        .matches(/^[a-zA-Z0-9_\-\s]{1,100}$/);
 
     var errors = req.validationErrors();
     if (errors) {

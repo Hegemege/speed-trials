@@ -234,6 +234,12 @@ button {
         width: 50%;
     }
 
+    &.small-button {
+        //height: 1.5em;
+        font-size: 20px;
+        padding: 0.5em;
+    }
+
     &.constant-button {
         width: 100%;
         @media (min-width: $mobile) {

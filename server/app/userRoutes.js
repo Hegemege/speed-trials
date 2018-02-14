@@ -33,8 +33,8 @@ router.post("/", function(req, res) {
     }
 
     req.checkBody("guestName", 
-    "Guest name can contain a-z, A-Z, 0-9 or an underscore, and must be 3 to 25 symbols long.")
-    .matches(/^[a-zA-Z0-9_]{3,25}$/);
+        "Guest name can contain a-z, A-Z, 0-9 or an underscore, and must be 3 to 25 symbols long.")
+        .matches(/^[a-zA-Z0-9_]{3,25}$/);
 
     var errors = req.validationErrors();
     if (errors) {
