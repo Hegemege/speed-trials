@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 
+var config = require("../config/config");
 var utils = require("./utils");
 var Models = require("./models");
 

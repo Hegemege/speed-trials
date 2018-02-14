@@ -51,7 +51,7 @@ export default class UserNavDisplay extends Vue {
         window.setTimeout(() => {
             this.$store.commit("_setGlobalSpinner", { show: false, instant: false });
 
-            swal("Bye-bye BibleCat", "Logged off succesfully.", "success");
+            swal("Bye-Bye BibleCat", "Logged off succesfully.", "success");
         }, 500);
 
         // Visually transfer to login page after 500ms

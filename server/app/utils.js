@@ -1,4 +1,5 @@
 
+var config = require("../config/config");
 var Models = require("./models");
 
 let utils = {

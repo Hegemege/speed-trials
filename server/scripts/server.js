@@ -56,7 +56,8 @@ console.log("Starting Express server...");
 const app = require("../app/app")();
 
 const expressApp = app.app;
-const ioApp = app.io;
+const ioApp = require("../app/app-io");
+const ioAppParams = app.params; // Passing stuff like sharedsession
 
 const server = expressApp.listen(SERVER_PORT, function() {
 
@@ -77,7 +78,7 @@ const server = expressApp.listen(SERVER_PORT, function() {
 // Add socket.io
 // Let app.js handle the websockets too, since all business logic is there
 const io = require('socket.io')(server);
-ioApp.handleSocketIo(io, expressApp);
+ioApp.handleSocketIo(io, expressApp, ioAppParams);
 
 //Configure and apply error handler
 server.timeout = SERVER_TIMEOUT;
