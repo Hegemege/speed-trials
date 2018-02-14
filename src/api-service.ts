@@ -10,7 +10,7 @@ export default class ApiService {
      * Attempt to create a new match on the server. Returns with result and invite code
      */
     public static createMatch(): Promise<any> {
-        return axios.post(this.apiURL + "/create-match", { }, { withCredentials: true })
+        return axios.post(this.apiURL + "/match/create", { }, { withCredentials: true })
             .then((res) => {
                 return {
                     result: res.data.result,
@@ -24,7 +24,7 @@ export default class ApiService {
     }
 
     public static renameMatch(code: string, name: string): Promise<any> {
-        return axios.post(this.apiURL + "/rename-match/" + code, { name: name }, { withCredentials: true })
+        return axios.post(this.apiURL + "/match/rename/" + code, { name: name }, { withCredentials: true })
             .then((res) => {
                 return res.data;
             }).catch((error) => {
