@@ -168,11 +168,12 @@ module.exports = function() {
 
 
     // All DB stores
-    const mapPools = new Datastore({ 
+    // Save the DB stores to the express app.locals
+    app.locals.mapPools = new Datastore({ 
         filename: path.join(__dirname, "/db/mappools.db"), 
         autoload: true 
     });
-    const matches = new Datastore({ 
+    app.locals.matches = new Datastore({ 
         filename: path.join(__dirname, "/db/matches.db"), 
         autoload: true, 
         timestampData: true
@@ -181,14 +182,14 @@ module.exports = function() {
 
     // Check for DB initialization with default values
     // If DB contains no records, initialize with dbDefaults.mapPools
-    mapPools.find({ }, (err, docs) => {
+    app.locals.mapPools.find({ }, (err, docs) => {
         if (err) {
             console.log("Could not test mappools.db for initialized values: " + err);
             return;
         }
 
         if (docs.length === 0) {
-            mapPools.insert(dbDefaults.mapPools, (err, docs) => {
+            app.locals.mapPools.insert(dbDefaults.mapPools, (err, docs) => {
                 if (err) {
                     console.log("Could not insert default mapPools into mappools.db: " + err);
                     return;
@@ -216,7 +217,7 @@ module.exports = function() {
         let weekAgoMS = Date.now() - inactivityRemoveInterval;
         let weekago = new Date(weekAgoMS);
 
-        matches.remove(
+        app.locals.matches.remove(
             { 
                 "updatedAt": { 
                     $lt: weekago 
@@ -295,7 +296,7 @@ module.exports = function() {
 
         // First test if code is already in use.
         // 1 in 64^7 chance, we need to celebrate it!
-        matches.find({ code: code }, (err, docs) => {
+        req.app.locals.matches.find({ code: code }, (err, docs) => {
             if (err) {
                 console.log("Error while finding match by code " + code + ": " + err);
                 res.status(500).send({ result: false, error: "Internal server error."});
@@ -307,7 +308,7 @@ module.exports = function() {
             }
         });
 
-        matches.insert(match, (err, docs) => {
+        req.app.locals.matches.insert(match, (err, docs) => {
             if (err) {
                 console.log("Error while inserting match:", match, ":", err);
                 res.status(500).send({ result: false, error: "Internal server error." });
@@ -338,7 +339,7 @@ module.exports = function() {
         // Update the name to DB and inform everyone in the room
         let name = req.body["name"];
 
-        matches.findOne({ "code": req.params.code }, (err, doc) => {
+        req.app.locals.matches.findOne({ "code": req.params.code }, (err, doc) => {
             if (!doc || err) {
                 res.status(400).send({result: false, error: "Match not found" });
                 return;
@@ -354,7 +355,7 @@ module.exports = function() {
 
             // Update the match and save it to DB
             match.name = name;
-            matches.update({ "code": req.params.code }, { $set: { "name": name } }, (err, numAffected) => {
+            req.app.locals.matches.update({ "code": req.params.code }, { $set: { "name": name } }, (err, numAffected) => {
                 if (err || numAffected !== 1) {
                     res.status(500).send({ result: false, error: "Internal server error" });
                     console.log("Unable to update match", req.params.code, ":", err, "numAffected", numAffected);
@@ -375,7 +376,7 @@ module.exports = function() {
         let currentUser = getUserObject(req.session, req.sessionID);
         if (!validateLoggedIn(currentUser)) return;
 
-        matches.findOne({ "code": req.params.code }, (err, doc) => {
+        req.app.locals.matches.findOne({ "code": req.params.code }, (err, doc) => {
             if (!doc || err) {
                 res.status(400).send({ error: "Match not found" });
                 return;
@@ -408,7 +409,7 @@ module.exports = function() {
     // Helper handler function such that all business logic exists in app.js while
     // the server connection etc is handled in server.js
     const io = {
-        handleSocketIo: function(io) {
+        handleSocketIo: function(io, app) {
             io.use(sharedsession(sessionObject, {
                 autoSave: true
             })); 
@@ -447,7 +448,7 @@ module.exports = function() {
                     }
 
                     // If user provided a bad match code, disconnect them
-                    matches.findOne({ "code": code }, (err, doc) => {
+                    app.locals.matches.findOne({ "code": code }, (err, doc) => {
                         if (doc === null) {
                             socket.disconnect();
                             return;
@@ -483,7 +484,7 @@ module.exports = function() {
                     }
 
                     // If user provided a bad match code, disconnect them
-                    matches.findOne({ "code": code }, (err, doc) => {
+                    app.locals.matches.findOne({ "code": code }, (err, doc) => {
                         if (doc === null) {
                             socket.disconnect();
                             return;
@@ -502,7 +503,7 @@ module.exports = function() {
                         let found = match.users.findIndex(user => user.id === newUser.id);
 
                         if (found === -1) {
-                            matches.update({ "code": code }, 
+                            app.locals.matches.update({ "code": code }, 
                             { $push: { users: newUser } }, 
                             { returnUpdatedDocs: true }, 
                             (err, numAffected, affectedDocuments, upsert) => {

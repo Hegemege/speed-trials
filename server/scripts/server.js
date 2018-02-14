@@ -77,7 +77,7 @@ const server = expressApp.listen(SERVER_PORT, function() {
 // Add socket.io
 // Let app.js handle the websockets too, since all business logic is there
 const io = require('socket.io')(server);
-ioApp.handleSocketIo(io);
+ioApp.handleSocketIo(io, expressApp);
 
 //Configure and apply error handler
 server.timeout = SERVER_TIMEOUT;
