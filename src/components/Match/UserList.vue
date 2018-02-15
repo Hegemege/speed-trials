@@ -15,7 +15,7 @@
                      src="../../assets/crown.svg">
             </div>
             <div v-if="user.you">
-                <a class="kick-button">Leave</a>
+                <a class="kick-button" v-on:click="leaveMatch">Leave</a>
             </div>
             <div v-else-if="isHost">
                 <a class="kick-button">Kick</a>
@@ -26,6 +26,9 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
+
+import ApiService from "@/api-service";
+import swal from "sweetalert2";
 
 @Component({
     props: {
@@ -44,7 +47,19 @@ export default class UserList extends Vue {
     public userList!: any[];
     public isHost!: boolean; // Whether the current user is the host. Used to display host-only features
 
-    
+    leaveMatch() {
+        swal({ 
+            title: "Leave match?",
+            text: "Are you sure you want to leave the match?",
+            type: "question",
+            showCancelButton: true,
+            })
+            .then((answer: any) => {
+                if (answer.value) {
+                    this.$parent.$emit("leave-match");
+                }
+            });
+    }
 }
 </script>
 

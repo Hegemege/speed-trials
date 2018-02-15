@@ -6,12 +6,16 @@
             <div class="match-title-row flex-container flex-align-center flex-wrap">
                 <div class="flex-container flex-align-center">
                     <h1>{{ matchData.name }}</h1>
-                    <span v-if="isHost" v-on:click="renameMatch" class="rename-button noselect">Rename</span>
+                    <span v-if="isHost" v-on:click="renameMatch" class="rename-button">Rename</span>
                     <button v-if="notJoined && matchData.allowJoin && !matchData.started" 
                         v-on:click="joinMatchPressed"
                         class="join-match-button small-button">
                         Join
-                    </button>   
+                    </button>
+                    <span v-if="matchData.host === null" class="abandoned-text">
+                        (Abandoned)
+                        <a class="abandoned-leave-button" v-on:click="leaveMatchPage">Leave</a>
+                    </span>
                 </div>
                 <div class="flex-container flex-align-stretch">
                     <div v-if="isHost" class="flex-container flex-align-center">
@@ -154,9 +158,39 @@ export default class Match extends Vue {
             // Match has been updated. Get the newest match data from server API
             this.getMatchData();
         })
+
+        // Leaving the match
+        // Event from child component (UserList)
+        this.$on("leave-match", () => {
+            this.socket.emit("leave-match", this.matchCode); // Inform the server
+
+            this.$store.commit("_setGlobalSpinner", { show: true, instant: false });
+        });
+
+        this.socket.on("unable-to-leave", (data: any) => {
+            swal(
+                "ILLEGAL", 
+                data.errorMessage, 
+                "error"
+            )
+        });
+
+        // Server has confirmed the action. Show swal and go back to home
+        this.socket.on("leave-match-confirm", () => {
+            this.$store.commit("_setGlobalSpinner", { show: false, instant: false });
+
+            swal("Success", "You have left the match", "success")
+                .then(() => {
+                    this.$router.push("/");
+                });
+        });
     }
 
-    getMatchData() {
+    getMatchData(showSpinner: boolean = false) {
+        if (showSpinner) {
+            this.$store.commit("_setGlobalSpinner", { show: true, instant: false });
+        }
+
         if (!this.matchData) { // First update
             this.$store.commit("_setGlobalSpinner", { show: true, instant: false });
         }
@@ -168,10 +202,19 @@ export default class Match extends Vue {
                         "Could not fetch match data. Error: " + data.errorMessage, 
                         "error"
                     ).then(() => {
+                        if (showSpinner) {
+                            this.$store.commit("_setGlobalSpinner", { show: true, instant: false });
+                        }
+
                         this.selfDisconnected = true;
                         this.socket.disconnect();
+                        
                         return;
                     });
+                }
+
+                if (showSpinner) {
+                    this.$store.commit("_setGlobalSpinner", { show: true, instant: false });
                 }
                 
                 // First update
@@ -182,6 +225,17 @@ export default class Match extends Vue {
                 // Only allow the latest update
                 if (this.matchDataUpdatedTimestamp < data.timestamp) {
                     this.matchDataUpdatedTimestamp = data.timestamp;
+                    
+
+                    // If the user was not host before (and this is not the first update), tell them via swal
+                    if (!this.isHost && data.isHost && this.matchData) {
+                        swal(
+                            "You are now the host", 
+                            "You have become the host of the match. CoolCatgasm!", 
+                            "info"
+                        );
+                    }
+
                     this.matchData = data.data;
                     this.isHost = data.isHost;
                 }
@@ -263,6 +317,10 @@ export default class Match extends Vue {
             }
         });
     }
+    
+    leaveMatchPage() {
+        this.$router.push("/");
+    }
 }
 </script>
 
@@ -291,6 +349,19 @@ export default class Match extends Vue {
         font-size: 20px;
         border: 1px dashed $common-background-color-light;
         font-family: "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace;
+    }   
+
+    .abandoned-text {
+        margin-left: 2em;
+    }
+
+    .abandoned-leave-button {
+        color: $common-accent-color;
+
+        &:hover {
+            cursor: pointer;
+            color: $common-accent-color-lighter;
+        }
     }
 }
 

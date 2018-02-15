@@ -195,9 +195,9 @@ router.get("/:code", function(req, res) {
             return;
         }
 
-        // Clean the user IDs from the users array and the host
+        // Clean the user IDs from the users array and the host (if it exists)
         let match = doc;
-        let hostId = match.host.id;
+        let hostId = match.host ? match.host.id : null;
 
         match.users = match.users.map((user) => { 
             return { 
@@ -208,7 +208,8 @@ router.get("/:code", function(req, res) {
             };
         });
 
-        match.host = new Models.User(match.host.name, match.host.guest);
+        // Strip away the match host id if the host exists
+        match.host = match.host ? new Models.User(match.host.name, match.host.guest) : match.host;
 
         res.status(200).send({ 
             result: true, 
