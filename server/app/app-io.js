@@ -118,6 +118,8 @@ const ioApp = {
                         (err, numAffected) => {
                             // Tell whole room to get newest match info
                             io.in(roomName).emit("match-updated"); 
+                            // Tell the user that joining succeeded (if they are not the host)
+                            socket.emit("join-match-confirm", newUser.id !== match.host.id);
                         });
                     } else {
                         // If user is already in match, just tell them to get new match data without having to inform others
@@ -209,6 +211,7 @@ const ioApp = {
 
                                         // Make the leaving user leave the room
                                         socket.leave(roomName);
+                                        io.in(roomName).emit("match-updated");
                                         socket.emit("leave-match-confirm");
                                 });
                             }
@@ -219,6 +222,73 @@ const ioApp = {
 
                 // socket.on("leave-match")...
             });
+
+            socket.on("kick-user", function(data) {
+                let code = data.code;
+                let wantedUser = data.data.user;
+                let wantedIndex = data.data.index;
+
+                if (!matchValidateSocket(socket)) return;
+                if (!matchValidateCode(socket, code)) return;
+
+                app.locals.matches.findOne({ "code": code }, (err, doc) => {
+                    if (!matchValidateDoc(socket, doc)) return;
+                    
+                    let match = doc;
+
+                    let roomName = "room-" + code;
+
+                    // Find all indices where user's name and guest status match
+                    let foundIndices = match.users.reduce(function(a, e, i) {
+                        if (e.name === wantedUser.name && e.guest === wantedUser.guest) a.push(i);
+                        return a;
+                    }, []);
+
+                    // If the given user is not in the match (anymore, or bad request)
+                    if (foundIndices.length === 0) {
+                        let message = "Unable to kick user. That user is not in the match anymore!";
+                        if (config.ENV === "dev") console.log(message);
+                        socket.emit("unable-to-kick", { result: false, errorMessage: message }); 
+                        return;
+                    }
+
+                    // If the room has started, do not allow kicking
+                    if (match.started) {
+                        let message = "Unable to kick user. Match " + code + " has already started.";
+                        if (config.ENV === "dev") console.log(message);
+                        socket.emit("unable-to-kick", { result: false, errorMessage: message }); 
+                        return;
+                    }
+
+                    // If the supplied index is incorrect 
+                    // (most likely due to participant index changing inbetween the kick and the server handling the requst)
+                    // or someone really crafty tries to break the server. haHAA
+                    if (foundIndices.indexOf(wantedIndex) === -1) {
+                        let message = "Unable to kick user due to match update. Please try again.";
+                        if (config.ENV === "dev") console.log(message);
+                        socket.emit("unable-to-kick", { result: false, errorMessage: message }); 
+                        return;
+                    }
+
+                    // We can kick the user (using the wantedIndex)
+                    // Remove the user from the match object and store the updated match object in DB
+                    match.users.splice(wantedIndex, 1);
+
+                    // No need to handle host or user migration since the host cannot be kicked
+                    app.locals.matches.update(
+                        { "code": code }, 
+                        match, 
+                        { returnUpdatedDocs: true }, 
+                        (err, numAffected, affectedDocuments) => { 
+                            // Forces everyone to update match info.
+                            // Kicked user will notice that they are no longer in the participant list and get notified.
+                            io.in(roomName).emit("match-updated"); 
+                        });
+                });
+
+                // socket.on("kick-user")...
+            });
+
 
             // io.sockets.on("connection")...
         });

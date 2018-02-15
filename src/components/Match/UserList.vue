@@ -2,7 +2,7 @@
     <div class="user-list-container ui-container">
         <h2>Participants</h2>
         <div class="content-separator"></div>
-        <div class="flex-container flex-align-center user-list-row" v-for="user of userList" :key="user.name">
+        <div class="flex-container flex-align-center user-list-row" v-for="(user, index) of userList" :key="user.name">
             <div class="flex-item flex-container flex-align-center">
                 {{ user.name }}</span>
                 <img v-if="!user.guest" 
@@ -18,7 +18,7 @@
                 <a class="kick-button" v-on:click="leaveMatch">Leave</a>
             </div>
             <div v-else-if="isHost">
-                <a class="kick-button">Kick</a>
+                <a class="kick-button" v-on:click="kickUser(user, index)">Kick</a>
             </div>
         </div>
     </div>
@@ -57,6 +57,22 @@ export default class UserList extends Vue {
             .then((answer: any) => {
                 if (answer.value) {
                     this.$parent.$emit("leave-match");
+                }
+            });
+    }
+
+    // Kick the user with given name/guest status and index in users list.
+    // Two consecutive guests with the same name could technically be confused here, but who cares
+    kickUser(user: any, index: number) {
+        swal({ 
+            title: "Kick \"" + user.name + "\"?",
+            text: "Are you sure you want to kick \"" + user.name + "\" from the match? They can rejoin the match immediately", // TODO: add a time limit for kicked users
+            type: "question",
+            showCancelButton: true,
+            })
+            .then((answer: any) => {
+                if (answer.value) {
+                    this.$parent.$emit("kick-user", { user: user, index: index });
                 }
             });
     }

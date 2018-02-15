@@ -80,6 +80,7 @@ export default class Match extends Vue {
     private matchCode: string = "";
     private matchData: any = null;
     private isHost: boolean = false;
+    private wasJoined: boolean = false;
     private selfDisconnected: boolean = false;
     private canJoinCheckbox: boolean = true;
 
@@ -138,6 +139,13 @@ export default class Match extends Vue {
             this.$router.push("/");
         });
 
+        this.socket.on("join-match-confirm", (inform: boolean) => {
+            this.wasJoined = true;
+            if (inform) {
+                swal("Success", "You have joined the match", "success");
+            }
+        });
+
         this.socket.on("disconnect", () => {
             this.socket.io.reconnection(false);
             if (this.selfDisconnected) {
@@ -184,6 +192,18 @@ export default class Match extends Vue {
                     this.$router.push("/");
                 });
         });
+
+        this.$on("kick-user", (data: any) => {
+            this.socket.emit("kick-user", { code: this.matchCode, data: data });
+        });
+
+        this.socket.on("unable-to-kick", (data: any) => {
+            swal(
+                "Whoa", 
+                data.errorMessage, 
+                "error"
+            )
+        });
     }
 
     getMatchData(showSpinner: boolean = false) {
@@ -226,14 +246,23 @@ export default class Match extends Vue {
                 if (this.matchDataUpdatedTimestamp < data.timestamp) {
                     this.matchDataUpdatedTimestamp = data.timestamp;
                     
-
                     // If the user was not host before (and this is not the first update), tell them via swal
                     if (!this.isHost && data.isHost && this.matchData) {
                         swal(
-                            "You are now the host", 
+                            "You are now the host.", 
                             "You have become the host of the match. CoolCatgasm!", 
                             "info"
                         );
+                    }
+
+                    // If the user was in the match's user list and is not there anymore, show kick message
+                    if (data.data.users.findIndex((user: any) => user.you) === -1 && this.wasJoined) {
+                        swal("Stop right there, criminal scum!", "You have been kicked from the match", "warning")
+                            .then(() => {
+                                this.selfDisconnected = true;
+                                this.socket.disconnect();
+                                this.$router.push("/");
+                            });
                     }
 
                     this.matchData = data.data;
