@@ -15,4 +15,8 @@ module.exports = {
         path: resolve("dist"),
         filename: "api.js",
     },
+    module: {
+        noParse: ['ws']
+      },
+    externals: ['ws']
 };
