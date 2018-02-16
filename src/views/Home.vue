@@ -2,10 +2,10 @@
     <div class="home flex-item flex-container-desktop">
         <div class="flex-item-desktop full-height">
             <Create></Create>
-            <div class="content-separator-large"></div>
+            <div class="content-divider-large"></div>
             <Join></Join>
         </div>
-        <div class="content-separator-vertical-large"></div>
+        <div class="content-divider-vertical-large"></div>
         <div class="flex-item-desktop full-height">
             <History></History>
         </div>

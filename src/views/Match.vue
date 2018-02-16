@@ -19,13 +19,12 @@
                 </div>
                 <div class="flex-container flex-align-stretch">
                     <div v-if="isHost" class="flex-container flex-align-center">
-                        <input type="checkbox" 
-                               id="canJoinCheckbox" 
+                        <CustomCheckbox id="canJoinCheckbox" 
                                v-model="canJoinCheckbox"
-                               v-on:change="onJoinCheckboxChanged()">
+                               v-on:change="onJoinCheckboxChanged()"></CustomCheckbox>
                         <label for="canJoinCheckbox">Allow joining</label>
                     </div>
-                    <div class="content-separator-vertical"></div>
+                    <div class="content-divider-vertical"></div>
                     <div v-if="matchData.allowJoin" class="flex-container flex-align-center">
                         <span class="noselect match-code-label">Invite code:</span>
                         <div class="match-code">
@@ -39,15 +38,18 @@
             <div class="flex-item-desktop full-height">
                 <UserList :userList="matchData.users" :isHost="isHost"></UserList>
             </div>
-            <div class="content-separator-vertical"></div>
+            <div class="content-divider-vertical"></div>
             <div class="flex-item-desktop full-height">
-                <div class="ui-container">
-                    <h2>Match status</h2>
-                </div>
+                <MatchStatus :matchData="matchData"></MatchStatus>
             </div>
             <div class="flex-item-desktop full-height">
                 <div class="ui-container">
-                    <h2>Map pool</h2>
+                    <div class="ui-container-header">
+                        <h2>Map pool</h2>
+                    </div>
+                    <div class="ui-container-content">
+                        <span>Content</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -61,7 +63,10 @@
 import { Component, Vue } from "vue-property-decorator";
 
 import OrbitSpinner from "@/components/OrbitSpinner.vue";
+import CustomCheckbox from "@/components/CustomCheckbox.vue";
+
 import UserList from "@/components/Match/UserList.vue";
+import MatchStatus from "@/components/Match/MatchStatus.vue";
 
 import ApiService from "@/api-service";
 
@@ -72,8 +77,10 @@ import { config } from "../config";
 
 @Component({
     components: {
+        OrbitSpinner,
+        CustomCheckbox,
         UserList,
-        OrbitSpinner
+        MatchStatus,
     }
 })
 export default class Match extends Vue {

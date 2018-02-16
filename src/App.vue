@@ -17,8 +17,8 @@
             </div>
         </div>
         <OrbitSpinner :global="true"></OrbitSpinner>
-        <router-view v-if="!isLoading && userName" class="content"></router-view>
-        <div v-else-if="!isLoading && !userName" class="content">
+        <router-view v-if="!isLoading && userName" class="content flex-item"></router-view>
+        <div v-else-if="!isLoading && !userName" class="content flex-item">
             <div class="flex-item flex-container-desktop">
                 <div class="flex-item-desktop full-height">
                     <h1>Log in</h1>
@@ -30,14 +30,24 @@
                     <p>or</p>
                     <TwitchLogin></TwitchLogin>
                 </div>
-                <div class="content-separator-vertical-large"></div>
+                <div class="content-divider-vertical-large"></div>
                 <div class="flex-item-desktop full-height">
                     <History></History>
                 </div>
             </div>
         </div>
+        <div v-else class="flex-item"></div>
         
         <cookie-law message="This website uses cookies to ensure smooth user experience. By continuing to browse this website, you agree to the use of cookies." theme="blood-orange"></cookie-law>
+
+        <div class="footer flex-container flex-align-center flex-space-between">
+            <div class="flex-container flex-align-center">
+                <a target="_blank" href="https://github.com/Hegemege/speed-trials" class="github-link"><img src="./assets/GitHub-Mark-Light-32px.png" class="github-logo"></a>
+                
+                <span>Speed Trials by @Hegemege, part of speedrunbets.com</span>
+            </div>
+            <span>Powered by Vue.js</span>
+        </div>
     </div>
 </template>
 
@@ -214,6 +224,26 @@ export default class App extends Vue {
 #nav a.router-link-exact-active {
     color: $common-accent-color;
     background-color: $common-background-color;
+}
+
+.footer {
+    padding: 0.75em;
+    background-color: $common-background-color-dark;
+
+    font-size: 15px;
+    color: $common-text-color-dark;
+
+    .github-logo {
+        margin-right: 1em;
+    }
+
+    .github-logo:hover {
+        cursor: pointer;
+    }
+
+    .github-link {
+        height: 32px;
+    }
 }
 
 </style>

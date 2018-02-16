@@ -1,24 +1,28 @@
 <template>
     <div class="user-list-container ui-container">
-        <h2>Participants</h2>
-        <div class="content-separator"></div>
-        <div class="flex-container flex-align-center user-list-row" v-for="(user, index) of userList" :key="user.name">
-            <div class="flex-item flex-container flex-align-center">
-                {{ user.name }}</span>
-                <img v-if="!user.guest" 
-                     class="twitch-badge"
-                     title="Logged in via Twitch"
-                     src="../../assets/GlitchBadge_Purple_24px.png">
-                <img v-if="user.host" 
-                     title="Host"
-                     class="host-badge" 
-                     src="../../assets/crown.svg">
-            </div>
-            <div v-if="user.you">
-                <a class="kick-button" v-on:click="leaveMatch">Leave</a>
-            </div>
-            <div v-else-if="isHost">
-                <a class="kick-button" v-on:click="kickUser(user, index)">Kick</a>
+        <div class="ui-container-header flex-container flex-align-center flex-space-between">
+            <h2>Participants</h2>
+            <div class="alt-label">{{ userList.length }} <icon name="user"></icon></div>
+        </div>
+        <div class="ui-container-content">
+            <div class="flex-container flex-align-center user-list-row" v-for="(user, index) of userList" :key="user.name">
+                <div class="flex-item flex-container flex-align-center">
+                    <span>{{ user.name }}</span>
+                    <img v-if="!user.guest" 
+                        class="twitch-badge"
+                        title="Logged in via Twitch"
+                        src="../../assets/GlitchBadge_Purple_24px.png">
+                    <img v-if="user.host" 
+                        title="Host"
+                        class="host-badge" 
+                        src="../../assets/crown.svg">
+                </div>
+                <div v-if="user.you">
+                    <a class="kick-button" v-on:click="leaveMatch">Leave</a>
+                </div>
+                <div v-else-if="isHost">
+                    <a class="kick-button" v-on:click="kickUser(user, index)">Kick</a>
+                </div>
             </div>
         </div>
     </div>
@@ -30,7 +34,13 @@ import { Component, Vue } from "vue-property-decorator";
 import ApiService from "@/api-service";
 import swal from "sweetalert2";
 
+import Icon from "vue-awesome/components/Icon.vue";
+import "vue-awesome/icons/user"
+
 @Component({
+    components: {
+        Icon,
+    },
     props: {
         userList: {
             default: () => {
@@ -44,8 +54,8 @@ import swal from "sweetalert2";
     }
 })
 export default class UserList extends Vue {
-    public userList!: any[];
-    public isHost!: boolean; // Whether the current user is the host. Used to display host-only features
+    userList: any; // any[]
+    isHost: any; // boolean  // Whether the current user is the host. Used to display host-only features
 
     leaveMatch() {
         swal({ 
