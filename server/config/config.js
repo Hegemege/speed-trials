@@ -59,9 +59,9 @@ module.exports = {
     production: {
         // API
         // Twitch integration
-        twitchClientId: "6ef9r2564g08s6637v92i095zy142c",
+        twitchClientId: "t08oapd7t98m8beu2nykszvxv07o7f",
         twitchClientSecret: secrets["production"]["twitchClientSecret"],
-        twitchClientCallbackUri: "TODO",
+        twitchClientCallbackUri: "https://trials.speedrunbets.com",
         twitchScope: "user_read",
 
         // Cookie secret
