@@ -368,6 +368,7 @@ export default class Match extends Vue {
 
 .match-title-row {
     padding-left: 1em;
+    padding-right: 1em;
 
     justify-content: space-between;
 
