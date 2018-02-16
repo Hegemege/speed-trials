@@ -1,5 +1,5 @@
 <template>
-    <div id="app" class="page-full-height flex-container-desktop flex-container-vertical">
+    <div id="app" class="page-full-height flex-container-vertical">
         <div id="nav" class="flex-container">
             <div id="nav-logo">
                 <router-link to="/">
@@ -17,27 +17,31 @@
             </div>
         </div>
         <OrbitSpinner :global="true"></OrbitSpinner>
-        <router-view v-if="!isLoading && userName" class="content flex-item"></router-view>
-        <div v-else-if="!isLoading && !userName" class="content flex-item">
-            <div class="flex-item flex-container-desktop">
-                <div class="flex-item-desktop full-height">
-                    <h1>Log in</h1>
-                    <p>
-                        To start using the site, please log in first. You can log in as a guest
-                        if you are just going to be joining SpeedTrial(tm) matches
-                    </p>
-                    <UserNameInput></UserNameInput>
-                    <p>or</p>
-                    <TwitchLogin></TwitchLogin>
+        <div class="content-wrapper flex-item flex-container-vertical">
+            <div class="content flex-item flex-container">
+                <router-view v-if="!isLoading && userName"></router-view>
+                <div v-else-if="!isLoading && !userName">
+                    <div class="flex-item flex-container-desktop">
+                        <div class="flex-item-desktop full-height">
+                            <h1>Log in</h1>
+                            <p>
+                                To start using the site, please log in first. You can log in as a guest
+                                if you are just going to be joining SpeedTrial(tm) matches
+                            </p>
+                            <UserNameInput></UserNameInput>
+                            <p>or</p>
+                            <TwitchLogin></TwitchLogin>
+                        </div>
+                        <div class="content-divider-vertical-large"></div>
+                        <div class="flex-item-desktop full-height">
+                            <History></History>
+                        </div>
+                    </div>
                 </div>
-                <div class="content-divider-vertical-large"></div>
-                <div class="flex-item-desktop full-height">
-                    <History></History>
-                </div>
+                <div v-else></div>
             </div>
         </div>
-        <div v-else class="flex-item"></div>
-        
+
         <cookie-law message="This website uses cookies to ensure smooth user experience. By continuing to browse this website, you agree to the use of cookies." theme="blood-orange"></cookie-law>
 
         <div class="footer flex-container flex-align-center flex-space-between">

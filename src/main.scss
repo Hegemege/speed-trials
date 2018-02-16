@@ -34,6 +34,8 @@ $input-width-desktop: 400px;
 $font-family: 'Avenir', Helvetica, Arial, sans-serif;
 $common-font-size: 16px;
 $common-font-line-height: 1.5em;
+$common-font-line-height-h1: 1em;
+$common-font-line-height-h2: 1em;
 
 /* Site-wide CSS */
 
@@ -99,6 +101,7 @@ $common-font-line-height: 1.5em;
 }
 
 .flex-container-vertical {
+    display: flex;
     flex-direction: column;
 }
 
@@ -116,6 +119,10 @@ $common-font-line-height: 1.5em;
 
 .flex-space-between {
     justify-content: space-between;
+}
+
+.flex-space-around {
+    justify-content: space-around;
 }
 
 .centered {
@@ -138,43 +145,60 @@ body, html {
     background-color: $common-background-color;
 }
 
+h1 {
+    line-height: $common-font-line-height-h1;
+}
+
+h2 {
+    line-height: $common-font-line-height-h2;
+}
+
 /* Page content styling */
+
+.content-wrapper {
+    width: 100%;
+
+    @media (min-width: $desktop-small) {
+        align-items: center;
+    }
+}
 
 .content {
     padding-top: 1em;
     padding-bottom: 1em;
     padding-left: 1em;
     padding-right: 1em;
-}
 
-@media (min-width: $mobile) {
-    .content {
+    @media (min-width: $mobile) {
         padding-left: 5em;
         padding-right: 5em;
+    }
+    
+    @media (min-width: $desktop-small) {
+        padding: 0;
+        max-width: $desktop-small;
+        min-width: $desktop-small;
+        display: flex;
     }
 }
 
 .content-divider {
-    margin-top: 0.5em;
-    margin-bottom: 0.5em;
+    margin: 0.5em;
     border-top: 2px solid $common-accent-color-dark;
 }
 
 .content-divider-large {
-    margin-top: 1.5em;
-    margin-bottom: 1.5em;
+    margin: 1.5em;
     border-top: 2px solid $common-accent-color-dark;
 }
 
 .content-divider-vertical {
-    margin-left: 0.5em;
-    margin-right: 0.5em;
+    margin: 0.5em;
     border-left: 2px solid $common-accent-color-dark;
 }
 
 .content-divider-vertical-large {
-    margin-left: 1.5em;
-    margin-right: 1.5em;
+    margin: 1.5em;
     border-left: 2px solid $common-accent-color-dark;
 }
 
@@ -310,10 +334,6 @@ input[type="text"] {
             width: $input-width-desktop;
         }
     }
-}
-
-input[type="checkbox"] {
-    background-color: $common-background-color;
 }
 
 /* Stylized SWAL2 (sweetalert2) */

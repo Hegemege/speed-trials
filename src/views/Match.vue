@@ -1,6 +1,6 @@
 <template>
     <div v-if="matchData" 
-         class="match flex-item flex-container flex-container-vertical">
+         class="match flex-item flex-container-vertical">
         <div class="spinner-container">
             <OrbitSpinner :show="titleSpinnerVisible"></OrbitSpinner>
             <div class="match-title-row flex-container flex-align-center flex-wrap">
