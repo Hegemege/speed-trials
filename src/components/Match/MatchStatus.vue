@@ -1,7 +1,7 @@
 <template>
     <div class="match-status-container ui-container">
         <div class="flex-container flex-align-center flex-space-between ui-container-header">
-            <h2 class="match-status-title">Match status</h2>
+            <h2 class="match-status-title">Status</h2>
             <span class="alt-label">{{ matchStatusTitle }}</span>
         </div>
         <div class="ui-container-content">

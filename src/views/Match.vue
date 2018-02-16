@@ -35,8 +35,9 @@
             </div>
         </div>
         <div class="flex-item flex-container-desktop">
-            <div class="flex-item-desktop full-height">
+            <div class="flex-item-desktop full-height flex-container-vertical">
                 <UserList :userList="matchData.users" :isHost="isHost"></UserList>
+                <Chat :chatData="chatData" :socket="socket"></Chat>
             </div>
             <div class="content-divider-vertical"></div>
             <div class="flex-item-desktop full-height">
@@ -67,6 +68,7 @@ import CustomCheckbox from "@/components/CustomCheckbox.vue";
 
 import UserList from "@/components/Match/UserList.vue";
 import MatchStatus from "@/components/Match/MatchStatus.vue";
+import Chat from "@/components/Match/Chat.vue";
 
 import ApiService from "@/api-service";
 
@@ -81,11 +83,13 @@ import { config } from "../config";
         CustomCheckbox,
         UserList,
         MatchStatus,
+        Chat,
     }
 })
 export default class Match extends Vue {
     private matchCode: string = "";
     private matchData: any = null;
+    private chatData: any = null;
     private isHost: boolean = false;
     private wasJoined: boolean = false;
     private selfDisconnected: boolean = false;
@@ -93,9 +97,7 @@ export default class Match extends Vue {
 
     private matchDataUpdatedTimestamp: number = 0;
 
-    private socket: any = io(config.serverHost, {
-        reconnection: false
-    });
+    private socket: any;
 
     private titleSpinnerVisible: boolean = false;
 
@@ -104,8 +106,8 @@ export default class Match extends Vue {
         return this.matchData.users.findIndex((user: any) => user.you === true) === -1;
     }
 
-
     created() {
+        this.socket  = io(config.serverHost, { reconnection: false });
         // Set spinner
         this.$store.commit("_setGlobalSpinner", { show: true, instant: false });
 

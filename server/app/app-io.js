@@ -19,9 +19,21 @@ const ioApp = {
 
             if (config.ENV === "dev") console.log("socket connected", socket.id);
 
+            socket.on("disconnecting", function() {
+                // User is disconnecting
+                // Tell all rooms the user is in to update chat count
+                Object.keys(socket.rooms).forEach(room => {
+                    socket.leave(room);
+                    announceRoomChatterCount(io, room);
+                });
+            });
+
+
             socket.on("disconnect", function() {
                 // User disconnected
                 if (config.ENV === "dev") console.log("socket disconnected", socket.id);
+
+                
             });
 
             /**
@@ -70,9 +82,19 @@ const ioApp = {
                     // Makes the host immediately join the match, 
                     // others will have to manually participate (or not, to observe)
                     socket.emit("match-connected", { instantJoin: match.host ? user.id === match.host.id : false });
+                    announceRoomChatterCount(io, roomName);
                 });
 
                 // socket.on("connect-match-code")...
+            });
+
+            socket.on("get-chatter-count", function(code) {
+                if (!matchValidateSocket(socket)) return;
+                if (!matchValidateCode(socket, code)) return;
+
+                let roomName = "room-" + code;
+
+                announceRoomChatterCount(io, roomName);
             });
 
             socket.on("join-match", function(code) {
@@ -188,6 +210,7 @@ const ioApp = {
                                             socket.leave(roomName);
                                             socket.emit("leave-match-confirm");
                                             io.in(roomName).emit("match-updated");
+                                            announceRoomChatterCount(io, roomName);
                                     });
                                 } else {
                                     if (config.ENV === "dev") console.log("User left match", code);
@@ -196,6 +219,7 @@ const ioApp = {
                                     socket.leave(roomName);
                                     socket.emit("leave-match-confirm");
                                     io.in(roomName).emit("match-updated");
+                                    announceRoomChatterCount(io, roomName);
                                 }
                             } else { // No more users remaining in the room
                                 // Do not allow joining the match
@@ -212,6 +236,7 @@ const ioApp = {
                                         // Make the leaving user leave the room
                                         socket.leave(roomName);
                                         io.in(roomName).emit("match-updated");
+                                        announceRoomChatterCount(io, roomName);
                                         socket.emit("leave-match-confirm");
                                 });
                             }
@@ -329,6 +354,10 @@ function matchValidateDoc(socket, doc) {
     }
     
     return true;
+}
+
+function announceRoomChatterCount(io, roomName) {
+    io.in(roomName).emit("chat-count", io.sockets.adapter.rooms[roomName] ? io.sockets.adapter.rooms[roomName].length : 0);
 }
 
 module.exports = ioApp;
