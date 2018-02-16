@@ -7,19 +7,19 @@
         <div class="ui-container-content flex-item flex-container-vertical">
             <div class="flex-item">
                 <div class="chat-message-area full-height">
-                    <VuePerfectScrollbar class="scroll-area full-height" v-once :settings="scrollbarSettings">
+                    <VuePerfectScrollbar class="scroll-area full-height" :settings="scrollbarSettings" ref="ps">
                         <div class="chat-scroll-area">
                             <div class="chat-row" 
-                            v-for="message of messages" 
+                            v-for="message of getMessages" 
                             :key="message.id">
-                                <span class="message-sender">{{ message.sender }}<img v-if="message.guest" class="twitch-badge" src="../../assets/GlitchBadge_Purple_24px.png">: </span>
+                                <span class="message-timestamp">{{ message.timestamp }}</span>
+                                <span class="message-sender">{{ message.sender }}<img v-if="!message.guest" class="twitch-badge" src="../../assets/GlitchBadge_Purple_24px.png">: </span>
                                 <span class="message-contents">{{ message.message }}</span>
                             </div>
                         </div>
                     </VuePerfectScrollbar>
                 </div>
             </div>
-            <div class="content-divider-long"></div>
             <div class="chat-input-area">
                 <textarea 
                     rows="3" 
@@ -43,6 +43,7 @@ import VuePerfectScrollbar from 'vue-perfect-scrollbar';
 
 import Icon from "vue-awesome/components/Icon.vue";
 import "vue-awesome/icons/user"
+import { throws } from "assert";
 
 
 @Component({
@@ -51,10 +52,6 @@ import "vue-awesome/icons/user"
         VuePerfectScrollbar
     },
     props: {
-        chatData: {
-            default: null,
-            type: Object
-        },
         socket: {
             default: null,
             type: Object
@@ -62,7 +59,6 @@ import "vue-awesome/icons/user"
     }
 })
 export default class Chat extends Vue {
-    chatData: any;
     socket: any;
 
     private chatterCount: number = 0;
@@ -74,62 +70,35 @@ export default class Chat extends Vue {
         suppressScrollX: true
     };
 
-    // TEMP
-    private messages: any[] = [];
+    messages: any[] = [];
+
+    get getMessages() {
+        return this.messages;
+    }
 
     created() {
-        this.messages.push({ message: "test", sender: "hegemege", guest: false, id: this.getMessageKey() });
-        this.messages.push({ message: "test", sender: "hegemege", guest: true, id: this.getMessageKey() });
-        this.messages.push({ message: "test", sender: "hegemege", guest: true, id: this.getMessageKey() });
-        this.messages.push({ message: "test", sender: "hegemege", guest: true, id: this.getMessageKey() });
-        this.messages.push({ message: "test", sender: "hegemege", guest: true, id: this.getMessageKey() });
-        this.messages.push({ message: "test", sender: "hegemege", guest: true, id: this.getMessageKey() });
-        this.messages.push({ message: "test", sender: "hegemege", guest: true, id: this.getMessageKey() });
-        this.messages.push({ message: "test", sender: "hegemege", guest: true, id: this.getMessageKey() });
-        this.messages.push({ message: "test", sender: "hegemege", guest: true, id: this.getMessageKey() });
-        this.messages.push({ message: "test", sender: "hegemege", guest: false, id: this.getMessageKey() });
-        this.messages.push({ message: "test", sender: "hegemege", guest: true, id: this.getMessageKey() });
-        this.messages.push({ message: "test", sender: "hegemege", guest: true, id: this.getMessageKey() });
-        this.messages.push({ message: "test", sender: "hegemege", guest: true, id: this.getMessageKey() });
-        this.messages.push({ message: "test", sender: "hegemege", guest: true, id: this.getMessageKey() });
-        this.messages.push({ message: "test", sender: "hegemege", guest: true, id: this.getMessageKey() });
-        this.messages.push({ message: "test", sender: "hegemege", guest: true, id: this.getMessageKey() });
-        this.messages.push({ message: "test", sender: "hegemege", guest: true, id: this.getMessageKey() });
-        this.messages.push({ message: "test", sender: "hegemege", guest: true, id: this.getMessageKey() });
-        this.messages.push({ message: "test", sender: "hegemege", guest: false, id: this.getMessageKey() });
-        this.messages.push({ message: "test", sender: "hegemege", guest: true, id: this.getMessageKey() });
-        this.messages.push({ message: "test", sender: "hegemege", guest: true, id: this.getMessageKey() });
-        this.messages.push({ message: "test", sender: "hegemege", guest: true, id: this.getMessageKey() });
-        this.messages.push({ message: "test", sender: "hegemege", guest: true, id: this.getMessageKey() });
-        this.messages.push({ message: "test", sender: "hegemege", guest: true, id: this.getMessageKey() });
-        this.messages.push({ message: "testtesttesttestteststtesttesttestttesttesttestttesttesttesttesttesttesttesttesttesttesttesttesttesttest", sender: "hegemege", guest: false, id: this.getMessageKey() });
-        this.messages.push({ message: "test", sender: "hegemege", guest: true, id: this.getMessageKey() });
-        this.messages.push({ message: "test", sender: "hegemege", guest: true, id: this.getMessageKey() });
-        this.messages.push({ message: "test", sender: "hegemege", guest: true, id: this.getMessageKey() });
-        this.messages.push({ message: "test", sender: "hegemege", guest: false, id: this.getMessageKey() });
-        this.messages.push({ message: "test", sender: "hegemege", guest: true, id: this.getMessageKey() });
-        this.messages.push({ message: "test", sender: "hegemege", guest: true, id: this.getMessageKey() });
-        this.messages.push({ message: "test", sender: "hegemege", guest: true, id: this.getMessageKey() });
-        this.messages.push({ message: "testtesttesttestteststtesttesttestttesttesttestttesttesttesttesttesttesttesttesttesttesttesttesttesttest", sender: "hegemege", guest: true, id: this.getMessageKey() });
-        this.messages.push({ message: "test", sender: "hegemege", guest: true, id: this.getMessageKey() });
-        this.messages.push({ message: "test", sender: "hegemege", guest: true, id: this.getMessageKey() });
-        this.messages.push({ message: "test", sender: "hegemege", guest: true, id: this.getMessageKey() });
-        this.messages.push({ message: "test", sender: "hegemege", guest: false, id: this.getMessageKey() });
-        this.messages.push({ message: "test", sender: "hegemege", guest: true, id: this.getMessageKey() });
-        this.messages.push({ message: "test", sender: "hegemege", guest: true, id: this.getMessageKey() });
-        this.messages.push({ message: "test", sender: "hegemege", guest: true, id: this.getMessageKey() });
-        this.messages.push({ message: "test", sender: "hegemege", guest: true, id: this.getMessageKey() });
-        this.messages.push({ message: "test", sender: "hegemege", guest: true, id: this.getMessageKey() });
-        this.messages.push({ message: "test", sender: "hegemege", guest: true, id: this.getMessageKey() });
-        this.messages.push({ message: "test", sender: "hegemege", guest: true, id: this.getMessageKey() });
-        this.messages.push({ message: "test", sender: "hegemege", guest: true, id: this.getMessageKey() });
-        this.messages.push({ message: "test", sender: "hegemege", guest: true, id: this.getMessageKey() });
-        
-
         this.socket.emit("get-chatter-count", this.$parent.$data.matchCode);
 
         this.socket.on("chat-message", (data: any) => {
-            console.log("Got chat data", data);
+            if (this.messages.length > 100) {
+                this.messages.shift();
+            }
+
+            let now = new Date();
+
+            data.timestamp = ("0" + now.getHours()).slice(-2) + ":" + ("0" + now.getMinutes()).slice(-2);
+            data.id = this.getMessageKey();
+
+            this.messages.push(data);
+
+            this.$nextTick(() => {
+                if (this.$refs.ps !== undefined) {
+                    // @ts-ignore
+                    this.$refs.ps.$el.scrollTop = 9999999999;
+                    // @ts-ignore
+                    this.$refs.ps.update();
+                }
+            });
         });
 
         this.socket.on("chat-count", (data: any) => {
@@ -142,7 +111,10 @@ export default class Chat extends Vue {
             event.preventDefault();
             if (this.inputMessage === "") return;
 
-            console.log(this.inputMessage);
+            // Send the chat message
+            this.socket.emit("chat-message", { message: this.inputMessage, code: this.$parent.$data.matchCode });
+
+            this.inputMessage = "";
         }
     }
 
@@ -176,7 +148,7 @@ export default class Chat extends Vue {
 .chat-row {
     padding-top: 0.25em;
     padding-bottom: 0.25em;
-    padding-left: 0.3em;
+    padding-left: 0.2em;
     line-height: 1.4em;
     
     color: $common-text-color-dark;
@@ -199,6 +171,12 @@ export default class Chat extends Vue {
         background-color: $common-background-color-darker;
     }
 
+    .message-timestamp {
+        color: $common-text-color-darker;
+        font-size: 13px;
+        padding-right: 3px;
+    }
+
     .message-sender {
         & .twitch-badge {
             margin-left: 5px;
@@ -210,6 +188,7 @@ export default class Chat extends Vue {
 }
 
 .chat-input-area {
+    margin-top: 0.7em;
     height: 4em;
 
     .chat-input {
@@ -229,7 +208,5 @@ export default class Chat extends Vue {
         resize: none;
     }
 }
-
-
 
 </style>

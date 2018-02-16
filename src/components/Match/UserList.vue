@@ -73,29 +73,6 @@ export default class UserList extends Vue {
         suppressScrollX: true
     };
 
-    created() {
-        this.userList.push({ name: "asfasfsa", guest: "false", you: false, isHost: false });
-        this.userList.push({ name: "asfasfsa 2", guest: "false", you: false, isHost: false });
-        this.userList.push({ name: "asfasfsa 3", guest: "false", you: false, isHost: false });
-        this.userList.push({ name: "asfasfsa 4", guest: "false", you: false, isHost: false });
-        this.userList.push({ name: "asfasfsa 5", guest: "false", you: false, isHost: false });
-        this.userList.push({ name: "asfasfsa 6", guest: "false", you: false, isHost: false });
-        this.userList.push({ name: "asfasfsa 7", guest: "false", you: false, isHost: false });
-        this.userList.push({ name: "asfasfsa 8", guest: "false", you: false, isHost: false });
-        this.userList.push({ name: "asfasfsa 9", guest: "false", you: false, isHost: false });
-        this.userList.push({ name: "asfasfsa 10", guest: "false", you: false, isHost: false });
-        this.userList.push({ name: "asfasfsa 11", guest: "false", you: false, isHost: false });
-        this.userList.push({ name: "asfasfsa 12", guest: "false", you: false, isHost: false });
-        this.userList.push({ name: "asfasfsa 13", guest: "false", you: false, isHost: false });
-        this.userList.push({ name: "asfasfsa 14", guest: "false", you: false, isHost: false });
-        this.userList.push({ name: "asfasfsa 15", guest: "false", you: false, isHost: false });
-        this.userList.push({ name: "asfasfsa 16", guest: "false", you: false, isHost: false });
-        this.userList.push({ name: "asfasfsa 17", guest: "false", you: false, isHost: false });
-        this.userList.push({ name: "asfasfsa 18", guest: "false", you: false, isHost: false });
-        this.userList.push({ name: "asfasfsa 19", guest: "false", you: false, isHost: false });
-        this.userList.push({ name: "asfasfsa 20", guest: "false", you: false, isHost: false });
-    }
-
     leaveMatch() {
         swal({ 
             title: "Leave match?",

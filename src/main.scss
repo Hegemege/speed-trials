@@ -226,6 +226,7 @@ h2 {
 .ui-container-header .alt-label {
     color: $common-alt-color;
     font-size: 24px;
+    margin-right: 0.2em;
 }
 
 .ui-container-content {
@@ -313,7 +314,7 @@ input {
 }
 
 input[type="text"], textarea {
-    border: 1px solid $common-text-color-dark;
+    border: 1px solid $common-text-color-darker;
     background-color: $common-background-color-dark;
     color: $common-text-color;
 

@@ -97,6 +97,25 @@ const ioApp = {
                 announceRoomChatterCount(io, roomName);
             });
 
+            socket.on("chat-message", function(data) {
+                let code = data.code;
+                let message = data.message;
+
+                if (!matchValidateSocket(socket)) return;
+                if (!matchValidateCode(socket, code)) return;
+
+                if (!validator.isLength(message, { min: 1, max: 1000 })) {
+                    if (config.ENV === "dev") console.log("Socket tried to send a chat message that was too short or too long");
+                    socket.disconnect();
+                    return;
+                }
+
+                let roomName = "room-" + code;
+                let sender = utils.getUserObject(socket.handshake.session, socket.handshake.sessionID);
+
+                announceRoomChatMessage(io, roomName, message, sender);
+            });
+
             socket.on("join-match", function(code) {
                 if (!matchValidateSocket(socket)) return;
                 if (!matchValidateCode(socket, code)) return;
@@ -356,8 +375,16 @@ function matchValidateDoc(socket, doc) {
     return true;
 }
 
-function announceRoomChatterCount(io, roomName) {
-    io.in(roomName).emit("chat-count", io.sockets.adapter.rooms[roomName] ? io.sockets.adapter.rooms[roomName].length : 0);
+function announceRoomChatterCount(ioref, roomName) {
+    ioref.in(roomName).emit("chat-count", ioref.sockets.adapter.rooms[roomName] ? ioref.sockets.adapter.rooms[roomName].length : 0);
+}
+
+function announceRoomChatMessage(ioref, roomName, message, sender) {
+    ioref.in(roomName).emit("chat-message", {
+        sender: sender.name,
+        guest: sender.guest,
+        message: message
+    });
 }
 
 module.exports = ioApp;
