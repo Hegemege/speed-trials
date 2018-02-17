@@ -30,6 +30,8 @@ catch (ex) {
 }
 
 
+console.log(secrets);
+
 /**
  * Environment configuration
  */
