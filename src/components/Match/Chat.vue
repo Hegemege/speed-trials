@@ -13,7 +13,12 @@
                             v-for="message of getMessages" 
                             :key="message.id">
                                 <span class="message-timestamp">{{ message.timestamp }}</span>
-                                <span class="message-sender">{{ message.sender }}<img v-if="!message.guest" class="twitch-badge" src="../../assets/GlitchBadge_Purple_24px.png">: </span>
+                                <span class="message-sender">
+                                    {{ message.sender }}
+                                    <img v-if="!message.guest" class="twitch-badge" src="../../assets/GlitchBadge_Purple_24px.png">
+                                    <img v-if="message.host" class="host-badge" src="../../assets/crown.svg">
+                                    : 
+                                </span>
                                 <span class="message-contents">{{ message.message }}</span>
                             </div>
                         </div>
@@ -90,6 +95,8 @@ export default class Chat extends Vue {
             data.id = this.getMessageKey();
 
             this.messages.push(data);
+
+            console.log(data);
 
             this.$nextTick(() => {
                 if (this.$refs.ps !== undefined) {
@@ -184,6 +191,12 @@ export default class Chat extends Vue {
             margin-bottom: -2px;
             width: 15px;
             height: 15px;
+        }
+
+        & .host-badge {
+            width: 18px;
+            height: 18px;
+            margin-bottom: -3px;
         }
     }
 }

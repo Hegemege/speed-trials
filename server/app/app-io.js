@@ -22,7 +22,18 @@ const ioApp = {
             socket.on("disconnecting", function() {
                 // User is disconnecting
                 // Tell all rooms the user is in to update chat count
+
+                let user = utils.getUserObject(socket.handshake.session, socket.handshake.sessionID);
+
                 Object.keys(socket.rooms).forEach(room => {
+                    // Inform any rooms the socket is still in that they have disconnected (abruptly)
+                    announceRoomChatMessageToOthers(
+                        socket, 
+                        room, 
+                        (user.guest ? "Guest " : "User ") + user.name + " has disconnected from chat.",  
+                        { name: null, guest: null }
+                    );
+
                     socket.leave(room);
                     announceRoomChatterCount(io, room);
                 });
@@ -83,6 +94,16 @@ const ioApp = {
                     // others will have to manually participate (or not, to observe)
                     socket.emit("match-connected", { instantJoin: match.host ? user.id === match.host.id : false });
                     announceRoomChatterCount(io, roomName);
+                    setTimeout(() => {
+                        sendChatMessage(socket, "Welcome to the chat room.", { name: null, guest: null });
+                    }, 3500);
+
+                    announceRoomChatMessageToOthers(
+                        socket, 
+                        roomName, 
+                        (user.guest ? "Guest " : "User ") + user.name + " has joined the chat.",  
+                        { name: null, guest: null }
+                    );
                 });
 
                 // socket.on("connect-match-code")...
@@ -113,7 +134,17 @@ const ioApp = {
                 let roomName = "room-" + code;
                 let sender = utils.getUserObject(socket.handshake.session, socket.handshake.sessionID);
 
-                announceRoomChatMessage(io, roomName, message, sender);
+                app.locals.matches.findOne({ "code": code }, (err, doc) => {
+                    if (!matchValidateDoc(socket, doc)) return;
+                    
+                    let match = doc;
+                    if (match.host === null) {
+                        socket.disconnect();
+                        return;
+                    }
+                    
+                    announceRoomChatMessage(io, roomName, message, sender, match.host.id === sender.id);
+                });
             });
 
             socket.on("join-match", function(code) {
@@ -161,6 +192,12 @@ const ioApp = {
                             io.in(roomName).emit("match-updated"); 
                             // Tell the user that joining succeeded (if they are not the host)
                             socket.emit("join-match-confirm", newUser.id !== match.host.id);
+                            announceRoomChatMessage(
+                                io, 
+                                roomName, 
+                                (newUser.guest ? "Guest " : "User ") + newUser.name + " has joined the match.",  
+                                { name: null, guest: null }
+                            );
                         });
                     } else {
                         // If user is already in match, just tell them to get new match data without having to inform others
@@ -230,6 +267,12 @@ const ioApp = {
                                             socket.emit("leave-match-confirm");
                                             io.in(roomName).emit("match-updated");
                                             announceRoomChatterCount(io, roomName);
+                                            announceRoomChatMessageToOthers(
+                                                socket, 
+                                                roomName, 
+                                                "Host " + user.name + " has left the match and chat. " + newHost.name + " is the new host.",  
+                                                { name: null, guest: null }
+                                            );
                                     });
                                 } else {
                                     if (config.ENV === "dev") console.log("User left match", code);
@@ -239,6 +282,12 @@ const ioApp = {
                                     socket.emit("leave-match-confirm");
                                     io.in(roomName).emit("match-updated");
                                     announceRoomChatterCount(io, roomName);
+                                    announceRoomChatMessageToOthers(
+                                        socket, 
+                                        roomName, 
+                                        (user.guest ? "Guest " : "User ") + user.name + " has left the match and chat.",  
+                                        { name: null, guest: null }
+                                    );
                                 }
                             } else { // No more users remaining in the room
                                 // Do not allow joining the match
@@ -256,6 +305,12 @@ const ioApp = {
                                         socket.leave(roomName);
                                         io.in(roomName).emit("match-updated");
                                         announceRoomChatterCount(io, roomName);
+                                        announceRoomChatMessageToOthers(
+                                            socket, 
+                                            roomName, 
+                                            (user.guest ? "Guest " : "User ") + user.name + " has left the match and chat. No host to take over, abandoning the match...",  
+                                            { name: null, guest: null }
+                                        );
                                         socket.emit("leave-match-confirm");
                                 });
                             }
@@ -326,7 +381,13 @@ const ioApp = {
                         (err, numAffected, affectedDocuments) => { 
                             // Forces everyone to update match info.
                             // Kicked user will notice that they are no longer in the participant list and get notified.
-                            io.in(roomName).emit("match-updated"); 
+                            io.in(roomName).emit("match-updated");
+                            announceRoomChatMessage(
+                                io, 
+                                roomName, 
+                                (wantedUser.guest ? "Guest " : "User ") + wantedUser.name + " has been kicked from the match and chat.",  
+                                { name: null, guest: null }
+                            );
                         });
                 });
 
@@ -379,10 +440,27 @@ function announceRoomChatterCount(ioref, roomName) {
     ioref.in(roomName).emit("chat-count", ioref.sockets.adapter.rooms[roomName] ? ioref.sockets.adapter.rooms[roomName].length : 0);
 }
 
-function announceRoomChatMessage(ioref, roomName, message, sender) {
+function sendChatMessage(socket, message, sender) {
+    socket.emit("chat-message", {
+        sender: sender.name,
+        guest: sender.guest,
+        message: message
+    });
+}
+
+function announceRoomChatMessageToOthers(socket, roomName, message, sender) {
+    socket.broadcast.to(roomName).emit("chat-message", {
+        sender: sender.name,
+        guest: sender.guest,
+        message: message
+    });
+}
+
+function announceRoomChatMessage(ioref, roomName, message, sender, host = false) {
     ioref.in(roomName).emit("chat-message", {
         sender: sender.name,
         guest: sender.guest,
+        host: host,
         message: message
     });
 }

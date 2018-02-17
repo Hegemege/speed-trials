@@ -8,7 +8,7 @@
         </div>
 
         <div class="scroll-container flex-item">
-            <VuePerfectScrollbar class="scroll-area full-height" v-once :settings="scrollbarSettings">
+            <VuePerfectScrollbar class="scroll-area full-height" :settings="scrollbarSettings" ref="ps">
                 <div class="user-list-rows full-height">
                     <div class="flex-container flex-align-center user-list-row" v-for="(user, index) of userList" :key="user.name">
                         <div class="flex-item flex-container flex-align-center">
@@ -60,6 +60,16 @@ import "vue-awesome/icons/user"
         isHost: {
             default: false,
             type: Boolean
+        }
+    },
+    watch: {
+        userList: function(newValue, oldValue) {
+            this.$nextTick(() => {
+                if (this.$refs.ps !== undefined) {
+                    // @ts-ignore
+                    this.$refs.ps.update();
+                }
+            });
         }
     }
 })
