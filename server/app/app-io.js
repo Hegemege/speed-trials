@@ -95,7 +95,7 @@ const ioApp = {
                     socket.emit("match-connected", { instantJoin: match.host ? user.id === match.host.id : false });
                     announceRoomChatterCount(io, roomName);
                     setTimeout(() => {
-                        sendChatMessage(socket, "Welcome to the chat room.", { name: null, guest: null });
+                        sendServerMessageUser(socket, "Welcome to the chat room.", { name: null, guest: null });
                     }, 3500);
 
                     announceRoomChatMessageToOthers(
@@ -142,7 +142,7 @@ const ioApp = {
                         socket.disconnect();
                         return;
                     }
-                    
+
                     announceRoomChatMessage(io, roomName, message, sender, match.host.id === sender.id);
                 });
             });
@@ -385,7 +385,7 @@ const ioApp = {
                             announceRoomChatMessage(
                                 io, 
                                 roomName, 
-                                (wantedUser.guest ? "Guest " : "User ") + wantedUser.name + " has been kicked from the match and chat.",  
+                                (wantedUser.guest ? "Guest " : "User ") + wantedUser.name + " has been kicked from the match.",  
                                 { name: null, guest: null }
                             );
                         });
@@ -440,7 +440,7 @@ function announceRoomChatterCount(ioref, roomName) {
     ioref.in(roomName).emit("chat-count", ioref.sockets.adapter.rooms[roomName] ? ioref.sockets.adapter.rooms[roomName].length : 0);
 }
 
-function sendChatMessage(socket, message, sender) {
+function sendServerMessageUser(socket, message, sender) {
     socket.emit("chat-message", {
         sender: sender.name,
         guest: sender.guest,

@@ -11,12 +11,13 @@
                         <div class="chat-scroll-area">
                             <div class="chat-row" 
                             v-for="message of getMessages" 
+                            v-bind:class="getMessageClass(message)"
                             :key="message.id">
                                 <span class="message-timestamp">{{ message.timestamp }}</span>
                                 <span class="message-sender">
-                                    {{ message.sender }}
-                                    <img v-if="!message.guest" class="twitch-badge" src="../../assets/GlitchBadge_Purple_24px.png">
-                                    <img v-if="message.host" class="host-badge" src="../../assets/crown.svg">
+                                    {{ message.sender === null ? "Server" : message.sender }}
+                                    <img v-if="message.guest === false" class="twitch-badge" src="../../assets/GlitchBadge_Purple_24px.png">
+                                    <img v-if="message.host === true" class="host-badge" src="../../assets/crown.svg">
                                     : 
                                 </span>
                                 <span class="message-contents">{{ message.message }}</span>
@@ -129,6 +130,16 @@ export default class Chat extends Vue {
     getMessageKey() {
         return "_" + Math.random().toString(36).substr(2, 9);
     }
+
+    getMessageClass(message: any) {
+        if (message.host) {
+            return "host-message";
+        }
+
+        if (message.sender === null) {
+            return "server-message";
+        }
+    }
 }
 </script>
 
@@ -198,6 +209,15 @@ export default class Chat extends Vue {
             height: 18px;
             margin-bottom: -3px;
         }
+    }
+
+    &.server-message {
+        color: $common-text-color-darker;
+        font-size: 12px;
+    }
+
+    &.host-message {
+        color: $common-accent-color;
     }
 }
 

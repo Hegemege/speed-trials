@@ -11,7 +11,7 @@
             <VuePerfectScrollbar class="scroll-area full-height" :settings="scrollbarSettings" ref="ps">
                 <div class="user-list-rows full-height">
                     <div class="flex-container flex-align-center user-list-row" v-for="(user, index) of userList" :key="user.name">
-                        <div class="flex-item flex-container flex-align-center">
+                        <div class="flex-item flex-container flex-align-center" v-bind:class="getUserClass(user)">
                             <span>{{ user.name }}</span>
                             <img v-if="!user.guest" 
                                 class="twitch-badge"
@@ -112,6 +112,16 @@ export default class UserList extends Vue {
                 }
             });
     }
+
+    getUserClass(user: any) {
+        if (user.host) {
+            return "host-user";
+        }
+
+        if (user.you) {
+            return "you-user";
+        }
+    }
 }
 </script>
 
@@ -141,6 +151,14 @@ export default class UserList extends Vue {
     .user-list-row {
         padding-left: 0.5em;
         height: 32px;
+
+        .you-user:not(.host-user) {
+            color: $common-alt-color;
+        }
+
+        .host-user {
+            color: $common-accent-color;
+        }
     }
 
     .user-list-row:nth-child(even) {
