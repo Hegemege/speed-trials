@@ -177,9 +177,10 @@ h2 {
     }
     
     @media (min-width: $desktop-small) {
-        padding: 0;
-        max-width: $desktop-small;
-        min-width: $desktop-small;
+        padding-left: 0;
+        padding-right: 0;
+        max-width: calc(#{$desktop-small} - 10em);
+        min-width: calc(#{$desktop-small} - 10em);
         display: flex;
     }
 }

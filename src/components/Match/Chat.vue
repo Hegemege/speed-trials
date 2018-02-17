@@ -97,8 +97,6 @@ export default class Chat extends Vue {
 
             this.messages.push(data);
 
-            console.log(data);
-
             this.$nextTick(() => {
                 if (this.$refs.ps !== undefined) {
                     // @ts-ignore
