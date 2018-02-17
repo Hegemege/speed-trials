@@ -406,7 +406,7 @@ export default class Match extends Vue {
 
 .rename-button {
     margin-left: 1em;
-    color: $common-accent-color;
+    color: $common-alt-color;
 
     &:hover {
         cursor: pointer;

@@ -111,10 +111,11 @@ export default class Chat extends Vue {
             event.preventDefault();
             if (this.inputMessage === "") return;
 
-            // Send the chat message
-            this.socket.emit("chat-message", { message: this.inputMessage, code: this.$parent.$data.matchCode });
-
+            let message = this.inputMessage;
             this.inputMessage = "";
+
+            // Send the chat message
+            this.socket.emit("chat-message", { message: message, code: this.$parent.$data.matchCode });
         }
     }
 
@@ -136,7 +137,7 @@ export default class Chat extends Vue {
 
 .chat-message-area {
     background-color: $common-background-color-darker;
-    border: 1px solid $common-accent-color-darker;
+    border: 1px solid $common-alt-color-darker;
 }
 
 .chat-scroll-area {

@@ -142,7 +142,7 @@ export default class UserList extends Vue {
     }
 
     .kick-button {
-        color: $common-accent-color;
+        color: $common-alt-color;
         text-align: right;
         padding-right: 0.5em;
 
