@@ -1,38 +1,37 @@
 
-var express = require("express");
-var bodyParser = require("body-parser");
-var fs = require("fs");
-var path = require("path");
-var uuidv4 = require("uuid/v4");
-var cors = require("cors")
-var bluebird = require("bluebird");
+const express = require("express");
+const bodyParser = require("body-parser");
+const path = require("path");
+const uuidv4 = require("uuid/v4");
+const cors = require("cors")
+const bluebird = require("bluebird");
 
 // Auth
-var session = require("express-session");
-var passport = require("passport");
-var OAuth2Strategy = require("passport-oauth").OAuth2Strategy;
-var request = require("request");
+const session = require("express-session");
+const passport = require("passport");
+const OAuth2Strategy = require("passport-oauth").OAuth2Strategy;
+const request = require("request");
 
 // DB
-var Datastore = require("nedb");
-var dbDefaults = require("./dbDefaults");
+const Datastore = require("nedb");
+const dbDefaults = require("./dbDefaults");
 
-var NedbStore = require("nedb-session-store")( session );
+const NedbStore = require("nedb-session-store")( session );
 
 // Config
-var config = require("../config/config");
+const config = require("../config/config");
 
 // Input validation
-var expressValidator = require("express-validator");
+const expressValidator = require("express-validator");
 
 // App routes
-var matchRoutes = require("./matchRoutes");
-var userRoutes = require("./userRoutes");
+const matchRoutes = require("./matchRoutes");
+const userRoutes = require("./userRoutes");
 
-var utils = require("./utils");
+const utils = require("./utils");
 
 // Object definitions
-var Models = require("./models");
+const Models = require("./models");
 
 // Constants
 MATCH_CODE_LENGTH = 7;
@@ -53,7 +52,7 @@ module.exports = function() {
     app.use(expressValidator());
 
     // Session object that will be shared between express and passport
-    var sessionObject = session(
+    const sessionObject = session(
         {
             secret: config[config.ENV].sessionSecret, 
             resave: false, 

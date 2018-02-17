@@ -3,7 +3,7 @@
 /**
  * Use bluebird for promises globally
  */
-global.Promise = require("bluebird");
+//global.Promise = require("bluebird");
 
 /**
  * Dependencies
@@ -15,7 +15,8 @@ const config = require("../config/config");
 /**
  * Configuration
  */
-const ENV = config.ENV;
+
+const ENV = process.env.NODE_ENV;
 const APP_NAME = config.APP_NAME;
 const SERVER_PORT = config[ENV].SERVER_PORT;
 const SERVER_TIMEOUT = config[ENV].SERVER_TIMEOUT;
@@ -77,7 +78,10 @@ const server = expressApp.listen(SERVER_PORT, function() {
 
 // Add socket.io
 // Let app.js handle the websockets too, since all business logic is there
-const io = require('socket.io')(server);
+const sio = require("socket.io");
+const io = sio(server, {
+    serveClient: false // do not serve the client file
+});
 ioApp.handleSocketIo(io, expressApp, ioAppParams);
 
 //Configure and apply error handler

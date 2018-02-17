@@ -5,9 +5,9 @@
  */
 const pkg = require("../package.json");
 
-let secrets = {}
+
 try {
-    secrets = require("./secrets");
+    var secrets = require("./secrets");
 }
 catch (ex) {
     console.error("Twitch API keys (client secret) missing from /config/secrets.js.");
