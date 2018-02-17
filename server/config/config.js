@@ -10,6 +10,7 @@ try {
     var secrets = require("./secrets");
 }
 catch (ex) {
+    console.error(ex);
     console.error("Twitch API keys (client secret) missing from /config/secrets.js.");
     console.error(`
     Example file: ./config/secrets.js
@@ -28,7 +29,6 @@ catch (ex) {
     `);
     throw("Cannot run speedtrials server without Twitch API keys, see console error above.");
 }
-
 
 /**
  * Environment configuration
