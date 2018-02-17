@@ -11,5 +11,6 @@ s3
 db.json
 *.db
 secrets.js
+secrets.json
 public
 dist

@@ -7,22 +7,22 @@ const pkg = require("../package.json");
 
 
 try {
-    var secrets = require("./secrets");
+    var secrets = require("./secrets.json");
 }
 catch (ex) {
     console.error(ex);
     console.error("Twitch API keys (client secret) missing from /config/secrets.js.");
     console.error(`
-    Example file: ./config/secrets.js
+    Example file: ./config/secrets.json
 
-    module.exports = {
-        dev: {
-            cookieSecret: "abcdefg",
-            twitchClientSecret: "abcdefg"
+    {
+        "dev": {
+            "cookieSecret": "abcdefg",
+            "twitchClientSecret": "abcdefg"
         },
-        production: {
-            cookieSecret: "abcdefg",
-            twitchClientSecret: "abcdefg"
+        "production": {
+            "cookieSecret": "abcdefg",
+            "twitchClientSecret": "abcdefg"
         },
     };
     
