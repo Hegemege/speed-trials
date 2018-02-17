@@ -68,7 +68,7 @@ module.exports = {
         sessionSecret: secrets["production"]["sessionSecret"],
 
         // Server
-        SERVER_PORT: process.env.PORT || 8080,
+        SERVER_PORT: process.env.PORT || 8081,
         SERVER_TIMEOUT: 120000,
     },
 };

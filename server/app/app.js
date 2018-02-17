@@ -36,8 +36,6 @@ const Models = require("./models");
 // Constants
 MATCH_CODE_LENGTH = 7;
 
-console.log(config);
-
 // App
 module.exports = function() {
     const app = express();
