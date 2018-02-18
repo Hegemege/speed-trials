@@ -348,18 +348,20 @@ input[type="text"], textarea {
 
 /* Stylized SWAL2 (sweetalert2) */
 
-.swal2-popup {
-    font-family: $font-family;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    font-size: $common-font-size;
-
-    background-color: $common-background-color-light;
-}
-
-.swal2-popup .swal2-title,
-.swal2-popup .swal2-content {
-    color: $common-text-color-light;
+.swal2-container {
+    .swal2-popup {
+        font-family: $font-family;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        font-size: $common-font-size;
+    
+        background-color: $common-background-color-light;
+    }
+    
+    .swal2-popup .swal2-title,
+    .swal2-popup .swal2-content {
+        color: $common-text-color-light;
+    }    
 }
 
 /* Small fixes to cookie-law */

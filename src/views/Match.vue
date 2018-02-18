@@ -44,14 +44,7 @@
                 <MatchStatus :matchData="matchData"></MatchStatus>
             </div>
             <div class="flex-item-desktop full-height">
-                <div class="ui-container">
-                    <div class="ui-container-header">
-                        <h2>Map pool</h2>
-                    </div>
-                    <div class="ui-container-content">
-                        <span>Content</span>
-                    </div>
-                </div>
+                <MapPool :matchData="matchData" :isHost="isHost"></MapPool>
             </div>
         </div>
     </div>
@@ -69,6 +62,7 @@ import CustomCheckbox from "@/components/CustomCheckbox.vue";
 import UserList from "@/components/Match/UserList.vue";
 import MatchStatus from "@/components/Match/MatchStatus.vue";
 import Chat from "@/components/Match/Chat.vue";
+import MapPool from "@/components/Match/MapPool.vue";
 
 import ApiService from "@/api-service";
 
@@ -84,6 +78,7 @@ import { config } from "../config";
         UserList,
         MatchStatus,
         Chat,
+        MapPool
     }
 })
 export default class Match extends Vue {
