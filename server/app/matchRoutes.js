@@ -147,7 +147,6 @@ router.post("/allow-join/:code", function(req, res) {
         return;
     }
 
-    // Update the status to DB and inform everyone in the room
     let allowJoin = req.body["allow"];
 
     req.app.locals.matches.findOne({ "code": req.params.code }, (err, doc) => {
@@ -164,8 +163,7 @@ router.post("/allow-join/:code", function(req, res) {
             return;
         }
 
-        // Update the match and save it to DB
-        match.allowJoin = allowJoin;
+        // Update it to DB
         req.app.locals.matches.update({ "code": req.params.code }, { $set: { "allowJoin": allowJoin } }, (err, numAffected) => {
             if (err || numAffected !== 1) {
                 res.status(500).send({ result: false, error: "Internal server error" });
@@ -178,6 +176,52 @@ router.post("/allow-join/:code", function(req, res) {
     });
 });
 
+
+
+
+router.post("/mappool/:code", function(req, res) {
+    let user = utils.getUserObject(req.session, req.sessionID);
+    if (!utils.validateLoggedIn(user)) return;
+
+    if (!utils.validateMatchCodeParam(req, res)) return;
+
+    // Validate the new name
+    req.checkBody("mapPoolId", "No map pool id given");
+
+    var errors = req.validationErrors();
+    if (errors) {
+        res.status(400).send({ result: false, validationErrors: errors });
+        return;
+    }
+
+    let mapPoolId = req.body["mapPoolId"];
+
+    req.app.locals.matches.findOne({ "code": req.params.code }, (err, doc) => {
+        if (!doc || err) {
+            res.status(400).send({result: false, error: "Match not found" });
+            return;
+        }
+
+        // Make sure the user is the host of the match
+        let match = doc;
+
+        if (match.host.id !== user.id) {
+            res.status(400).send({ result: false, error: "You are not the host" });
+            return;
+        }
+
+        // Update it to DB
+        req.app.locals.matches.update({ "code": req.params.code }, { $set: { "mapPool": mapPoolId } }, (err, numAffected) => {
+            if (err || numAffected !== 1) {
+                res.status(500).send({ result: false, error: "Internal server error" });
+                console.log("Unable to update match", req.params.code, ":", err, "numAffected", numAffected);
+                return;
+            }
+
+            res.status(200).send({ result: true });
+        });
+    });
+});
 
 
 

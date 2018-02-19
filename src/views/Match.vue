@@ -2,7 +2,7 @@
     <div v-if="matchData" 
          class="match flex-item flex-container-vertical">
         <div class="spinner-container">
-            <OrbitSpinner :show="titleSpinnerVisible"></OrbitSpinner>
+            <OrbitSpinner :show="$store.getters.getLocalSpinnerState('matchTitle')"></OrbitSpinner>
             <div class="match-title-row flex-container flex-align-center flex-wrap">
                 <div class="flex-container flex-align-center">
                     <h1>{{ matchData.name }}</h1>
@@ -44,7 +44,7 @@
                 <MatchStatus :matchData="matchData"></MatchStatus>
             </div>
             <div class="flex-item-desktop full-height">
-                <MapPool :matchData="matchData" :isHost="isHost"></MapPool>
+                <MapPool :matchData="matchData" :isHost="isHost" :mapPoolData="mapPoolData"></MapPool>
             </div>
         </div>
     </div>
@@ -84,6 +84,7 @@ import { config } from "../config";
 export default class Match extends Vue {
     private matchCode: string = "";
     private matchData: any = null;
+    private mapPoolData: any[] = [];
     private chatData: any = null;
     private isHost: boolean = false;
     private wasJoined: boolean = false;
@@ -94,14 +95,15 @@ export default class Match extends Vue {
 
     private socket: any;
 
-    private titleSpinnerVisible: boolean = false;
-
     get notJoined() {
         // If no user in data is marked as "you"
         return this.matchData.users.findIndex((user: any) => user.you === true) === -1;
     }
 
     created() {
+        // Get map pool data
+        this.getMapPoolData();
+
         this.socket  = io(config.serverHost, { reconnection: false });
         // Set spinner
         this.$store.commit("_setGlobalSpinner", { show: true, instant: false });
@@ -181,7 +183,7 @@ export default class Match extends Vue {
 
         this.socket.on("unable-to-leave", (data: any) => {
             swal(
-                "ILLEGAL", 
+                "ILLEGAL!", 
                 data.errorMessage, 
                 "error"
             )
@@ -203,11 +205,23 @@ export default class Match extends Vue {
 
         this.socket.on("unable-to-kick", (data: any) => {
             swal(
-                "Whoa", 
+                "Whoa.", 
                 data.errorMessage, 
                 "error"
             )
         });
+
+        this.$on("host-update", () => {
+            this.socket.emit("host-update", this.matchCode);
+        });
+    }
+
+    getMapPoolData() {
+        // Ran immediately when opening the match
+        ApiService.getMapPoolData()
+            .then((data: any[]) => {
+                this.mapPoolData = data;
+            });
     }
 
     getMatchData(showSpinner: boolean = false) {
@@ -222,7 +236,7 @@ export default class Match extends Vue {
             .then((data: any) => {
                 if (!data.result) {
                     swal(
-                        "Uh-oh", 
+                        "Uh-oh...", 
                         "Could not fetch match data. Error: " + data.errorMessage, 
                         "error"
                     ).then(() => {
@@ -254,7 +268,7 @@ export default class Match extends Vue {
                     if (!this.isHost && data.isHost && this.matchData) {
                         swal(
                             "You are now the host.", 
-                            "You have become the host of the match. CoolCatgasm!", 
+                            "You have become the host of the match. CoolCatgasm", 
                             "info"
                         );
                     }
@@ -292,12 +306,15 @@ export default class Match extends Vue {
             inputValue: this.matchData.name
         }).then((result: any) => {
             if (result.value !== undefined) {
-                this.titleSpinnerVisible = true;
+
+                this.$store.commit("_setLocalSpinner", { name: "matchTitle", state: true });
 
                 ApiService.renameMatch(this.matchCode, result.value)
                     .then((data: any) => {
+                        
                         if (!data.result) {
                             swal("Error", "Unable to rename match. Reason: " + data.errorMessage, "error");
+                            this.$store.commit("_setLocalSpinner", { name: "matchTitle", state: false });
                             return;
                         }
 
@@ -309,7 +326,8 @@ export default class Match extends Vue {
     }
 
     setLoadingSpinners(value: boolean) {
-        this.titleSpinnerVisible = value;
+        this.$store.commit("_setLocalSpinner", { name: "matchTitle", state: value });
+        this.$store.commit("_setLocalSpinner", { name: "matchMapPool", state: value });
     }
 
     joinMatchPressed() {
@@ -325,12 +343,12 @@ export default class Match extends Vue {
             if (status.dismiss) {
                 this.canJoinCheckbox = !this.canJoinCheckbox;
             } else {
-                this.titleSpinnerVisible = true;
+                
+                this.$store.commit("_setLocalSpinner", { name: "matchTitle", state: true });
 
                 // Send the update to server
                 ApiService.allowJoinMatch(this.matchCode, this.canJoinCheckbox)
                     .then((data: any) => {
-                        this.titleSpinnerVisible = false;
                         if (data.result) {
                             swal(
                                 "Success", 
@@ -339,7 +357,10 @@ export default class Match extends Vue {
                                     "Users can no longer join this match", 
                                 "success"
                             );
+
+                            this.socket.emit("host-update", this.matchCode);
                         } else {
+                            this.$store.commit("_setLocalSpinner", { name: "matchTitle", state: false });
                             swal(
                                 "Error", 
                                 "Unable to change join status. Reason: " + data.errorMessage, 

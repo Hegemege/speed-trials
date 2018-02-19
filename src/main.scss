@@ -392,20 +392,22 @@ input[type="text"], textarea {
 
 
 /* Perfect scrollbar custom style (Remove ugly background) */
-.ps:hover>.ps__scrollbar-y-rail:hover {
-    background-color: rgba(0,0,0,0);
-    //opacity: 0;
-
-    &>.ps__scrollbar-y {
-        width: 6px;
+.app {
+    .ps:hover>.ps__scrollbar-y-rail:hover {
+        background-color: rgba(0,0,0,0);
+        //opacity: 0;
+    
+        &>.ps__scrollbar-y {
+            width: 6px;
+        }
     }
-}
-
-.ps:hover.ps--in-scrolling.ps--y>.ps__scrollbar-y-rail,
-.ps.ps--in-scrolling.ps--y>.ps__scrollbar-y-rail {
-    background-color: rgba(0,0,0,0);
-
-    &>.ps__scrollbar-y {
-        width: 6px;
+    
+    .ps:hover.ps--in-scrolling.ps--y>.ps__scrollbar-y-rail,
+    .ps.ps--in-scrolling.ps--y>.ps__scrollbar-y-rail {
+        background-color: rgba(0,0,0,0);
+    
+        &>.ps__scrollbar-y {
+            width: 6px;
+        }
     }
 }

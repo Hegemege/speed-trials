@@ -23,15 +23,6 @@ export default class ApiService {
             });
     }
 
-    public static leaveMatch(code: string): Promise<any> {
-        return axios.post(this.apiURL + "/match/leave/" + code, { }, { withCredentials: true })
-            .then((res) => {
-                return res.data;
-            }).catch((error) => {
-                return ApiService.handleErrorMessage(error);
-            });
-    }
-
     public static checkMatchExists(code: string): Promise<any> {
         return axios.post(this.apiURL + "/match/exists/" + code, { }, { withCredentials: true })
             .then((res) => {
@@ -63,6 +54,24 @@ export default class ApiService {
         return axios.get(this.apiURL + "/match/" + code, { withCredentials: true })
             .then((res) => {
                 return res.data;
+            }).catch((error) => {
+                return ApiService.handleErrorMessage(error);
+            });
+    }
+
+    public static getMapPoolData(): Promise<any> {
+        return axios.get(this.apiURL + "/mappools", { withCredentials: true })
+            .then((res) => {
+                return res.data.data; // Array of maps
+            }).catch((error) => {
+                return ApiService.handleErrorMessage(error);
+            });
+    }
+
+    public static setMatchMapPool(code: string, id: string): Promise<any> {
+        return axios.post(this.apiURL + "/match/mappool/" + code, { mapPoolId: id }, { withCredentials: true })
+            .then((res) => {
+                return res.data; // Success/error
             }).catch((error) => {
                 return ApiService.handleErrorMessage(error);
             });

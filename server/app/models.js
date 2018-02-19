@@ -4,7 +4,7 @@ class Match {
         this.code = code;
         this.host = host; // Host user
         this.users = []; // List of all users
-        this.mapPool = ""; // Chosen mappool name
+        this.mapPool = ""; // Chosen mappool Id (from mappools.db)
         this.started = false;
         this.ended = false;
         this.allowJoin = true;

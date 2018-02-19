@@ -20,7 +20,7 @@
         <div class="content-wrapper flex-item flex-container-vertical">
             <div class="content flex-item flex-container">
                 <router-view v-if="!isLoading && userName"></router-view>
-                <div v-else-if="!isLoading && !userName">
+                <div v-else-if="!isLoading && !userName" class="flex-item flex-container">
                     <div class="flex-item flex-container-desktop">
                         <div class="flex-item-desktop full-height">
                             <h1>Log in</h1>

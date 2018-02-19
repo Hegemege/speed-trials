@@ -14,6 +14,18 @@ export default new Vuex.Store({
             show: false,
             instant: false,
         },
+        localSpinners: [
+            { name: "matchTitle", state: false },
+            { name: "matchMapPool", state: false }
+        ]
+    },
+    getters: {
+        getLocalSpinnerState: (state: any) => (name: string) => {
+            let index = state.localSpinners.findIndex((spinner: any) => spinner.name === name);
+            if (index === -1) return null;
+
+            return state.localSpinners[index].state;
+        }
     },
     mutations: {
         _setUserName(state, name) {
@@ -27,6 +39,13 @@ export default new Vuex.Store({
             state.globalSpinner.instant = typeof values.instant === "boolean" ? values.instant : false;
             state.globalSpinner.show = typeof values.show === "boolean" ? values.show : false;
         },
+        _setLocalSpinner(state, params) {
+            // Params contains the name of the variable to alter and it's state
+            let index = state.localSpinners.findIndex((spinner: any) => spinner.name === params.name);
+            if (index === -1) return;
+
+            state.localSpinners[index].state = params.state;
+        }
     },
     actions: {
         setUserName(context, name): Promise<any> {

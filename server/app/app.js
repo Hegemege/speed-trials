@@ -211,6 +211,18 @@ module.exports = function() {
     app.use("/api/match", require("./matchRoutes"));
     app.use("/api/user", require("./userRoutes"));
 
+    app.get("/api/mappools", function(req, res) {
+        // No need to validate anything really, this can be considered a public route
+        app.locals.mapPools.find({}, (err, docs) => {
+            if (err) {
+                res.status(500).send({ result: false, error: "Internal server error" });
+                return;
+            }
+
+            res.status(200).send({ result: true, data: docs });
+        });
+    });
+
     // Returns to server.js, which starts the server (and passes params to socket.io)
     return {app: app, params: { sessionObject: sessionObject }};
 };
