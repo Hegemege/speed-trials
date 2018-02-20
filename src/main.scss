@@ -348,6 +348,17 @@ input[type="text"], textarea {
 
 /* Stylized SWAL2 (sweetalert2) */
 
+// Sometimes swal thinks there is a scroll bar, prevent styling issues when that happens
+// Override this only on desktop sizes, where there should never ever be any vertical native scrolling
+@media (min-width: $mobile) {
+    html.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown),
+    body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) {
+        height: 100%; 
+        padding: 0 !important; 
+    }
+}
+
+
 .swal2-container {
     .swal2-popup {
         font-family: $font-family;
