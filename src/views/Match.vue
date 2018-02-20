@@ -40,10 +40,10 @@
                 <Chat :chatData="chatData" :socket="socket"></Chat>
             </div>
             <div class="content-divider-vertical"></div>
-            <div class="flex-item-desktop full-height">
+            <div class="flex-item-desktop full-height flex-container-vertical">
                 <MatchStatus :matchData="matchData"></MatchStatus>
             </div>
-            <div class="flex-item-desktop full-height">
+            <div class="flex-item-desktop full-height flex-container-vertical">
                 <MapPool :matchData="matchData" :isHost="isHost" :mapPoolData="mapPoolData"></MapPool>
             </div>
         </div>

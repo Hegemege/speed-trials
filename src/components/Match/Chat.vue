@@ -49,8 +49,6 @@ import VuePerfectScrollbar from 'vue-perfect-scrollbar';
 
 import Icon from "vue-awesome/components/Icon.vue";
 import "vue-awesome/icons/user"
-import { throws } from "assert";
-
 
 @Component({
     components: {

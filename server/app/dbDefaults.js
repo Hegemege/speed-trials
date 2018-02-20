@@ -72,7 +72,7 @@ module.exports = {
             ]
         },
         {
-            "name": "All",
+            "name": "All maps",
             maps: [
                 "yavin1b",
                 "yavin2",
