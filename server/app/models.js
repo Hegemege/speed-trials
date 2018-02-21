@@ -8,6 +8,7 @@ class Match {
         this.started = false;
         this.ended = false;
         this.allowJoin = true;
+        this.private = true; // All matches are private by default
     }
 }
 

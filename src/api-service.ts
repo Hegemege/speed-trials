@@ -50,6 +50,15 @@ export default class ApiService {
             });
     }
 
+    public static changePrivacyMatch(code: string, isPrivate: boolean): Promise<any> {
+        return axios.post(this.apiURL + "/match/change-privacy/" + code, { isPrivate: isPrivate }, { withCredentials: true })
+            .then((res) => {
+                return res.data;
+            }).catch((error) => {
+                return ApiService.handleErrorMessage(error);
+            });
+    }
+
     public static getMatch(code: string): Promise<any> {
         return axios.get(this.apiURL + "/match/" + code, { withCredentials: true })
             .then((res) => {

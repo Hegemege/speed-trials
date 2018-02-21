@@ -18,11 +18,20 @@
                     </span>
                 </div>
                 <div class="flex-container flex-align-stretch">
-                    <div v-if="isHost" class="flex-container flex-align-center">
-                        <CustomCheckbox id="canJoinCheckbox" 
-                               v-model="canJoinCheckbox"
-                               v-on:change="onJoinCheckboxChanged()"></CustomCheckbox>
-                        <label for="canJoinCheckbox">Allow joining</label>
+                    <div v-if="isHost" class="flex-container flex-align-stretch">
+                        <div class="flex-container flex-align-center">
+                            <CustomCheckbox id="privateCheckbox" 
+                                v-model="privateCheckbox"
+                                v-on:change="onPrivateCheckboxChanged()"></CustomCheckbox>
+                            <label for="privateCheckbox">Private match</label>
+                        </div>
+                        <div class="content-divider-vertical"></div>
+                        <div class="flex-container flex-align-center">
+                            <CustomCheckbox id="canJoinCheckbox" 
+                                v-model="canJoinCheckbox"
+                                v-on:change="onJoinCheckboxChanged()"></CustomCheckbox>
+                            <label for="canJoinCheckbox">Allow joining</label>
+                        </div>
                     </div>
                     <div class="content-divider-vertical"></div>
                     <div v-if="matchData.allowJoin" class="flex-container flex-align-center">
@@ -70,6 +79,7 @@ import swal from "sweetalert2";
 import io from "socket.io-client";
 
 import { config } from "../config";
+import { Socket } from "net";
 
 @Component({
     components: {
@@ -90,6 +100,7 @@ export default class Match extends Vue {
     private wasJoined: boolean = false;
     private selfDisconnected: boolean = false;
     private canJoinCheckbox: boolean = true;
+    private privateCheckbox: boolean = true;
 
     private matchDataUpdatedTimestamp: number = 0;
 
@@ -372,6 +383,47 @@ export default class Match extends Vue {
         });
     }
     
+    onPrivateCheckboxChanged() {
+        swal({
+            title: this.privateCheckbox ? "Make the match private?" : "Make the match public?",
+            text: this.privateCheckbox ? 
+                "Only those with the invite code can view the match details" :
+                "The match will be visible on the front page",
+            showCancelButton: true,
+            focusConfirm: true,
+        }).then((status: any) => {
+            if (status.dismiss) {
+                this.privateCheckbox = !this.privateCheckbox;
+            } else {
+                
+                this.$store.commit("_setLocalSpinner", { name: "matchTitle", state: true });
+
+                // Send the update to server
+                ApiService.changePrivacyMatch(this.matchCode, this.privateCheckbox)
+                    .then((data: any) => {
+                        if (data.result) {
+                            swal(
+                                "Success", 
+                                this.privateCheckbox ? 
+                                    "The match is now unlisted and not visible on the front page" :
+                                    "The match is now visible on the front page", 
+                                "success"
+                            );
+
+                            this.socket.emit("host-update", this.matchCode);
+                        } else {
+                            this.$store.commit("_setLocalSpinner", { name: "matchTitle", state: false });
+                            swal(
+                                "Error", 
+                                "Unable to change privacy status. Reason: " + data.errorMessage, 
+                                "error"
+                            );
+                        }
+                    });
+            }
+        });
+    }
+
     leaveMatchPage() {
         this.$router.push("/");
     }
