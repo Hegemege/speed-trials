@@ -1,6 +1,6 @@
 <template>
     <div class="user-name-input">
-        <h2>As guest</h2>
+        <h2>As a guest</h2>
         <input class="large-centered-input constant-input" 
                type="text"
                placeholder="username"

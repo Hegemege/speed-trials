@@ -169,6 +169,8 @@ export default class Match extends Vue {
 
         this.socket.on("disconnect", () => {
             this.socket.io.reconnection(false);
+
+            // Do not display the disconnect popup if the disconnection was deliberate
             if (this.selfDisconnected) {
                 this.$router.push("/");
                 return;

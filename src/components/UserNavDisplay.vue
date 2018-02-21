@@ -1,7 +1,5 @@
 <template>
     <div class="nav-user-container" v-if="userName">
-        <div class="nav-mobile-separator"></div>
-        <div class="nav-separator"></div>
         <div class="flex-container flex-align-center"
              v-on:mouseover="showReset = true"
              v-on:mouseleave="showReset = false"

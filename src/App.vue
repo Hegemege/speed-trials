@@ -2,18 +2,19 @@
     <div id="app" class="page-full-height flex-container-vertical">
         <div id="nav" class="flex-container">
             <div id="nav-logo">
-                <router-link to="/">
+                <router-link class="logo-button" to="/">
                     <span>SPEED TRIALS</span>
                 </router-link>
              </div>
 
-            <div class="nav-mobile-separator"></div>
+            <div class="nav-separator"></div>
             <div id="nav-links" class="flex-container">
                 <UserNavDisplay></UserNavDisplay>
-
+                <!--
                 <div class="nav-mobile-separator"></div>
                 <div class="nav-separator"></div>
                 <router-link to="/history">History</router-link>
+                -->
             </div>
         </div>
         <OrbitSpinner :global="true"></OrbitSpinner>
@@ -32,10 +33,13 @@
                             <p>or</p>
                             <TwitchLogin></TwitchLogin>
                         </div>
+                        <!--
                         <div class="content-divider-vertical-large"></div>
-                        <div class="flex-item-desktop full-height">
-                            <History></History>
+                        <div class="flex-item-desktop full-height flex-container-vertical">
+                            <LiveMatches class="flex-item"></LiveMatches>
+                            <History class="flex-item"></History>
                         </div>
+                        -->
                     </div>
                 </div>
                 <div v-else></div>
@@ -63,8 +67,9 @@ import { Component, Vue } from "vue-property-decorator";
 import UserNameInput from "@/components/UserNameInput.vue";
 import TwitchLogin from "@/components/TwitchLogin.vue";
 import UserNavDisplay from "@/components/UserNavDisplay.vue";
-import History from "@/views/History.vue";
-import GlobalHelpers from "@/mixins.ts";
+//import History from "@/views/History.vue";
+//import LiveMatches from "@/views/LiveMatches.vue";
+import GlobalHelpers from "@/mixins.ts"; // Unused
 import CookieLaw from "vue-cookie-law";
 
 import ApiService from "@/api-service";
@@ -78,7 +83,8 @@ import swal from "sweetalert2";
         UserNameInput,
         TwitchLogin,
         UserNavDisplay,
-        History,
+        //History,
+        //LiveMatches,
         OrbitSpinner,
         // This will display an error in editors because it can't find the
         // custom typings shim in vue-cookie-law.d.ts in this project's root.
@@ -183,10 +189,16 @@ export default class App extends Vue {
 }
 
 #nav-logo {
-    padding: 0.7em;
+    padding: 0em;
+    margin-bottom: 0.5em;
     // Desktop navbar has a separator between logo and links
     @media (min-width: $mobile) {
-        margin-right: 5em;
+        padding: 0.7em;
+        margin: 0;
+    }
+
+    .logo-button {
+        display: block;
     }
 }
 
@@ -200,17 +212,12 @@ export default class App extends Vue {
 }
 
 // Mobile separator in navbar
-#nav .nav-mobile-separator {
+#nav .nav-separator {
     border-top: 1px solid $common-accent-color-dark;
-}
 
-@media (min-width: $mobile) {
-    #nav .nav-mobile-separator {
-        border: 0;
-    }
-
-    #nav .nav-separator {
-        height: 1em + 0.7em + 0.7em;
+    @media (min-width: $mobile) {
+        height: 2em;
+        border-top: 0;
         border-left: 1px solid $common-accent-color-dark;
     }
 }

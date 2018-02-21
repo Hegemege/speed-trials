@@ -1,6 +1,6 @@
 <template>
-    <div class="history">
-        <h1>Match history</h1>
+    <div class="live-matches">
+        <h1>Live matches</h1>
         <p>This feature is coming soon.</p>
     </div>
 </template>
@@ -11,7 +11,7 @@ import { Component, Vue } from "vue-property-decorator";
 @Component({
 
 })
-export default class History extends Vue {
+export default class LiveMatches extends Vue {
 
 }
 </script>
