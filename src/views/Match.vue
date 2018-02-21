@@ -25,7 +25,7 @@
                                 v-on:change="onPrivateCheckboxChanged()"></CustomCheckbox>
                             <label for="privateCheckbox">Private match</label>
                         </div>
-                        <div class="content-divider-vertical"></div>
+                        <div class="content-divider-vertical-long"></div>
                         <div class="flex-container flex-align-center">
                             <CustomCheckbox id="canJoinCheckbox" 
                                 v-model="canJoinCheckbox"
@@ -33,7 +33,11 @@
                             <label for="canJoinCheckbox">Allow joining</label>
                         </div>
                     </div>
-                    <div class="content-divider-vertical"></div>
+                    <div v-else class="flex-container flex-align-center">
+                        <span v-if="matchData.private">Private match</span>
+                        <span v-else>Public match</span>
+                    </div>
+                    <div v-if="matchData.allowJoin" class="content-divider-vertical-long"></div>
                     <div v-if="matchData.allowJoin" class="flex-container flex-align-center">
                         <span class="noselect match-code-label">Invite code:</span>
                         <div class="match-code">
@@ -474,6 +478,7 @@ export default class Match extends Vue {
 
 .rename-button {
     margin-left: 1em;
+    margin-right: 1em;
     color: $common-alt-color;
 
     &:hover {
