@@ -43,12 +43,12 @@ import { Component, Vue, Prop } from "vue-property-decorator";
     },
 })
 export default class OrbitSpinner extends Vue {
-    public global!: boolean;
-    public size!: number;
-    public duration!: number;
-    public color!: string;
-    public show!: boolean;
-    public instant!: boolean;
+    global: any; // boolean
+    size: any; // number
+    duration: any; // number
+    color: any; // string
+    show: any; // boolean
+    instant: any; // boolean
 
     get showSpinner() {
         return this.global ? this.$store.state.globalSpinner.show : this.show;
@@ -69,6 +69,8 @@ export default class OrbitSpinner extends Vue {
         return {
           height: this.size + "px",
           width: this.size + "px",
+          top: "calc(50% - " + this.size/2  + "px)",
+          left: "calc(50% - " + this.size/2 + "px)"
         };
     }
 
@@ -113,8 +115,6 @@ $target-opacity: 0.25;
 
 .orbit-spinner {
     position: absolute;
-    left: 50%;
-    top: calc(50% - 26px);
     border-radius: 50%;
     perspective: 800px;
 }

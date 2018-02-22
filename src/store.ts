@@ -16,7 +16,9 @@ export default new Vuex.Store({
         },
         localSpinners: [
             { name: "matchTitle", state: false },
-            { name: "matchMapPool", state: false }
+            { name: "matchMapPool", state: false },
+            { name: "joinButton", state: false },
+            { name: "readyButton", state: false }
         ]
     },
     getters: {

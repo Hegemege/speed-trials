@@ -11,6 +11,7 @@
             <VuePerfectScrollbar class="scroll-area full-height" :settings="scrollbarSettings" ref="ps">
                 <div class="user-list-rows full-height">
                     <div class="flex-container flex-align-center user-list-row" v-for="(user, index) of userList" :key="user.name">
+                        <div class="status-indicator" :class="readyStatusIndicator(user)"></div>
                         <div class="flex-item flex-container flex-align-center" v-bind:class="getUserClass(user)">
                             <span>{{ user.name }}</span>
                             <img v-if="!user.guest" 
@@ -83,6 +84,10 @@ export default class UserList extends Vue {
         suppressScrollX: true
     };
 
+    readyStatusIndicator(user: any) {
+        return user.ready ? "status-indicator-ready" : "status-indicator-not-ready";
+    }
+
     leaveMatch() {
         swal({ 
             title: "Leave match?",
@@ -134,6 +139,19 @@ export default class UserList extends Vue {
         min-height: 0;
     }
 
+    .status-indicator {
+        height: 100%;
+        margin-right: 0.5em;
+        &.status-indicator-ready {
+            border-left: 5px solid $common-success-color;
+        }
+
+        &.status-indicator-not-ready {
+            border-left: 5px solid $common-failure-color;
+        }
+    }
+
+
     .scroll-container {
         padding: 0.5em;
         padding-right: 0.1em;
@@ -149,7 +167,6 @@ export default class UserList extends Vue {
     }
 
     .user-list-row {
-        padding-left: 0.5em;
         height: 32px;
 
         .you-user:not(.host-user) {

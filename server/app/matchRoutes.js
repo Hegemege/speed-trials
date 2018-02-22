@@ -293,7 +293,8 @@ router.get("/:code", function(req, res) {
                 name: user.name, 
                 guest: user.guest, 
                 host: user.id === hostId, 
-                you: user.id === currentUser.id 
+                you: user.id === currentUser.id,
+                ready: user.ready
             };
         });
 

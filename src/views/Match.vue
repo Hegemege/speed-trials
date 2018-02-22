@@ -3,20 +3,17 @@
          class="match flex-item flex-container-vertical">
         <div class="spinner-container">
             <OrbitSpinner :show="$store.getters.getLocalSpinnerState('matchTitle')"></OrbitSpinner>
+
             <div class="match-title-row flex-container flex-align-center flex-wrap">
                 <div class="flex-container flex-align-center">
                     <h1>{{ matchData.name }}</h1>
                     <span v-if="isHost" v-on:click="renameMatch" class="rename-button">Rename</span>
-                    <button v-if="notJoined && matchData.allowJoin && !matchData.started" 
-                        v-on:click="joinMatchPressed"
-                        class="join-match-button small-button">
-                        Join
-                    </button>
                     <span v-if="matchData.host === null" class="abandoned-text">
                         (Abandoned)
                         <a class="abandoned-leave-button" v-on:click="leaveMatchPage">Leave</a>
                     </span>
                 </div>
+
                 <div class="flex-container flex-align-stretch">
                     <div v-if="isHost" class="flex-container flex-align-stretch">
                         <div class="flex-container flex-align-center">
@@ -25,6 +22,7 @@
                                 v-on:change="onPrivateCheckboxChanged()"></CustomCheckbox>
                             <label for="privateCheckbox">Private match</label>
                         </div>
+
                         <div class="content-divider-vertical-long"></div>
                         <div class="flex-container flex-align-center">
                             <CustomCheckbox id="canJoinCheckbox" 
@@ -33,10 +31,12 @@
                             <label for="canJoinCheckbox">Allow joining</label>
                         </div>
                     </div>
+
                     <div v-else class="flex-container flex-align-center">
                         <span v-if="matchData.private">Private match</span>
                         <span v-else>Public match</span>
                     </div>
+
                     <div v-if="matchData.allowJoin" class="content-divider-vertical-long"></div>
                     <div v-if="matchData.allowJoin" class="flex-container flex-align-center">
                         <span class="noselect match-code-label">Invite code:</span>
@@ -50,12 +50,33 @@
         <div class="flex-item flex-container-desktop">
             <div class="flex-item-desktop full-height flex-container-vertical">
                 <UserList :userList="matchData.users" :isHost="isHost"></UserList>
+
+                <div v-if="!joined && matchData.allowJoin && !matchData.started" 
+                     class="ui-container spinner-container">
+                    <OrbitSpinner :size="35" :show="$store.getters.getLocalSpinnerState('joinButton')"></OrbitSpinner>
+                    <button v-on:click="joinMatchPressed"
+                        class="small-button wide-button">
+                        Join
+                    </button>
+                </div>
+
+                <div v-if="joined && !matchData.started" 
+                     class="ui-container spinner-container">
+                    <OrbitSpinner :size="35" :show="$store.getters.getLocalSpinnerState('readyButton')"></OrbitSpinner>
+                    <button v-on:click="readyPressed"
+                        :class="readyButtonClass"
+                        class="small-button wide-button ready-button">
+                    </button>
+                </div>
+
                 <Chat :chatData="chatData" :socket="socket"></Chat>
             </div>
             <div class="content-divider-vertical"></div>
+
             <div class="flex-item-desktop full-height flex-container-vertical">
                 <MatchStatus :matchData="matchData"></MatchStatus>
             </div>
+
             <div class="flex-item-desktop full-height flex-container-vertical">
                 <MapPool :matchData="matchData" :isHost="isHost" :mapPoolData="mapPoolData"></MapPool>
             </div>
@@ -81,6 +102,9 @@ import ApiService from "@/api-service";
 
 import swal from "sweetalert2";
 import io from "socket.io-client";
+import Icon from "vue-awesome/components/Icon.vue";
+import "vue-awesome/icons/check-circle"
+import "font-awesome/css/font-awesome.css";
 
 import { config } from "../config";
 import { Socket } from "net";
@@ -89,6 +113,7 @@ import { Socket } from "net";
     components: {
         OrbitSpinner,
         CustomCheckbox,
+        Icon,
         UserList,
         MatchStatus,
         Chat,
@@ -100,19 +125,28 @@ export default class Match extends Vue {
     private matchData: any = null;
     private mapPoolData: any[] = [];
     private chatData: any = null;
+
+    // Flags
     private isHost: boolean = false;
     private wasJoined: boolean = false;
-    private selfDisconnected: boolean = false;
+    private isReady: boolean = false;
+
+    // Admin-only
     private canJoinCheckbox: boolean = true;
     private privateCheckbox: boolean = true;
 
+    // Socket and data handling
     private matchDataUpdatedTimestamp: number = 0;
-
     private socket: any;
+    private selfDisconnected: boolean = false;
 
-    get notJoined() {
+    get joined() {
         // If no user in data is marked as "you"
-        return this.matchData.users.findIndex((user: any) => user.you === true) === -1;
+        return this.matchData.users.findIndex((user: any) => user.you === true) !== -1;
+    }
+
+    get readyButtonClass() {
+        return this.isReady ? "status-ready" : "status-not-ready";
     }
 
     created() {
@@ -302,6 +336,12 @@ export default class Match extends Vue {
 
                     this.matchData = data.data;
                     this.isHost = data.isHost;
+
+                    // Find self in users list, update isReady
+                    let userSelf = this.matchData.users.find((user: any) => user.you);
+                    if (userSelf !== null) {
+                        this.isReady = userSelf.ready;
+                    }
                 }
 
                 this.setLoadingSpinners(false);
@@ -345,10 +385,18 @@ export default class Match extends Vue {
     setLoadingSpinners(value: boolean) {
         this.$store.commit("_setLocalSpinner", { name: "matchTitle", state: value });
         this.$store.commit("_setLocalSpinner", { name: "matchMapPool", state: value });
+        this.$store.commit("_setLocalSpinner", { name: "joinButton", state: value });
+        this.$store.commit("_setLocalSpinner", { name: "readyButton", state: value });
     }
 
     joinMatchPressed() {
+        this.$store.commit("_setLocalSpinner", { name: "joinButton", state: true });
         this.socket.emit("join-match", this.matchCode);
+    }
+
+    readyPressed() {
+        this.$store.commit("_setLocalSpinner", { name: "readyButton", state: true });
+        this.socket.emit("ready-match", { code: this.matchCode, ready: !this.isReady });
     }
 
     onJoinCheckboxChanged() {
@@ -450,10 +498,6 @@ export default class Match extends Vue {
         margin-right: 0.5em;
     }
 
-    .join-match-button {
-        margin-left: 0.5em;
-    }
-
     .match-code {
         text-align: center;
         padding: 0.5em;
@@ -488,5 +532,69 @@ export default class Match extends Vue {
         color: $common-accent-color-lighter;
     }
 }
+
+.ready-button {
+    &.status-not-ready {
+        color: $common-failure-color;
+        border-color: $common-failure-color;
+
+        &:hover::before {
+            font-family: FontAwesome;
+            content: "\f058 ";
+        }
+
+        &:hover {
+            &::after {
+                content: "I am ready!";
+            }
+            
+            color: $common-success-color;
+            border-color: $common-success-color;
+        }
+
+        /*
+        &:not(:hover)::before {
+            font-family: FontAwesome;
+            content: "\f057 ";
+        }
+        */
+
+        &:not(:hover)::after {
+            content: "Not ready";
+        }
+    }
+
+    &.status-ready {
+        color: $common-success-color;
+        border-color: $common-success-color;
+
+        &:hover::before {
+            font-family: FontAwesome;
+            content: "\f057 ";
+        }
+
+        &:hover {
+            &::after {
+                content: "I am not ready!";
+            }
+
+            color: $common-failure-color;
+            border-color: $common-failure-color;
+        }
+
+        /*
+        &:not(:hover)::before {
+            font-family: FontAwesome;
+            content: "\f058 ";
+        }
+        */
+
+        &:not(:hover)::after {
+            content: "Ready";
+        }
+    }
+}
+
+
 
 </style>

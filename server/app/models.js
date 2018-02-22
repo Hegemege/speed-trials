@@ -16,6 +16,7 @@ class User {
     constructor(name, guest, id) {
         this.name = name; // Current username
         this.guest = guest;
+        this.ready = false;
 
         // Twitch ID. null if guest
         // In dev mode, sessionID will be used

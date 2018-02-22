@@ -23,7 +23,8 @@
         "vuex": "^3.0.1",
         "vue-awesome": "2.3.4",
         "vue-perfect-scrollbar": "0.1.0",
-        "vuedraggable": "2.16.0"
+        "vuedraggable": "2.16.0",
+        "font-awesome": "4.7.0"
     },
     "devDependencies": {
         "@vue/cli-plugin-babel": "^3.0.0-alpha.8",

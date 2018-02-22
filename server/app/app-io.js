@@ -96,7 +96,7 @@ const ioApp = {
                     announceRoomChatterCount(io, roomName);
                     setTimeout(() => {
                         sendServerMessageUser(socket, "Welcome to the chat room.", { name: null, guest: null });
-                    }, 3500);
+                    }, 2000);
 
                     announceRoomChatMessageToOthers(
                         socket, 
@@ -337,6 +337,11 @@ const ioApp = {
 
                     let roomName = "room-" + code;
 
+                    if (match.host.id !== user.id) {
+                        socket.disconnect();
+                        return;
+                    }
+
                     // Find all indices where user's name and guest status match
                     let foundIndices = match.users.reduce(function(a, e, i) {
                         if (e.name === wantedUser.name && e.guest === wantedUser.guest) a.push(i);
@@ -392,6 +397,54 @@ const ioApp = {
                 });
 
                 // socket.on("kick-user")...
+            });
+
+            socket.on("ready-match", function(data) {
+                let code = data.code;
+                let isReady = data.ready;
+
+                if (!matchValidateSocket(socket)) return;
+                if (!matchValidateCode(socket, code)) return;
+
+                if (isReady !== true && isReady !== false) {
+                    if (config.ENV === "dev") console.log("Invalid input in ready-match");
+                    socket.disconnect();
+                    return;
+                }
+
+                app.locals.matches.findOne({ "code": code }, (err, doc) => {
+                    if (!matchValidateDoc(socket, doc)) return;
+                    
+                    let match = doc;
+
+                    let roomName = "room-" + code;
+
+                    // User has already been validated via validateSocket
+                    let user = utils.getUserObject(socket.handshake.session, socket.handshake.sessionID);
+                    
+                    let userIndex = match.users.findIndex(dbuser => dbuser.id === user.id);
+                    if (userIndex === -1) {
+                        socket.disconnect();
+                        return;
+                    }
+
+                    user.ready = isReady;
+
+                    // Set updated ready status and inform whole room to update data
+                    let setParam = {};
+                    setParam["users." + userIndex] = user; // The object parameter given to NeDB's $set
+                
+                    app.locals.matches.update(
+                        { "code": code }, 
+                        { $set: setParam },
+                        { returnUpdatedDocs: true },
+                        (err, numAffected, affectedDocument) => {
+                            io.in(roomName).emit("match-updated");
+                        } 
+                    );
+                });
+
+                // socket..on("ready-match")...
             });
 
 

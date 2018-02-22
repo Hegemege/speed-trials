@@ -119,11 +119,11 @@ export default class MapPool extends Vue {
     }
 
     get chosenMapPool() {
-        if (!this.matchData) return "";
-        if (!this.matchData.mapPool) return "Not selected";
+        if (!this.matchData) return { name: "" };
+        if (!this.matchData.mapPool || this.matchData.mapPool === "") return { name: "Not selected" };
 
         let index = this.mapPoolData.findIndex((pool: any) => pool["_id"] === this.matchData.mapPool);
-        if (index === -1) return "<Invalid map pool>";
+        if (index === -1) return { name: "<Invalid map pool>" };
 
         return this.mapPoolData[index];
     }

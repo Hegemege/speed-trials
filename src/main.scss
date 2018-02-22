@@ -26,6 +26,16 @@ $common-background-color-darker: #101d29;
 $common-background-color-light: #40576d;
 $common-background-color-lighter: #5e778f;
 
+/* Button colors */
+$common-success-color: #23c278;
+$common-success-background-color: #1b5855;
+$common-success-background-color-light: #31706d;
+
+$common-failure-color: #ca5722;
+$common-failure-background-color: #644725;
+$common-failure-background-color-light: #795b3a;
+
+
 /* Media query sizes */
 
 $mobile: 70em;
@@ -285,7 +295,7 @@ button {
     }
 
     &:hover:not(:active) {
-        background-color: $common-background-color-light;
+        background-color: $common-background-color;
     }
 
     &.custom-button {
