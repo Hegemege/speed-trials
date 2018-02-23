@@ -337,6 +337,8 @@ const ioApp = {
 
                     let roomName = "room-" + code;
 
+                    let user = utils.getUserObject(socket.handshake.session, socket.handshake.sessionID);
+
                     if (match.host.id !== user.id) {
                         socket.disconnect();
                         return;

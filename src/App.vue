@@ -144,7 +144,7 @@ export default class App extends Vue {
 #nav {
     font-size: 20px;
 
-    padding: 20px;
+    padding: 0.5em;
     cursor: default;
     background-color: $common-background-color-dark;
 

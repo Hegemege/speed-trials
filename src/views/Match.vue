@@ -74,7 +74,8 @@
             <div class="content-divider-vertical"></div>
 
             <div class="flex-item-desktop full-height flex-container-vertical">
-                <MatchStatus :matchData="matchData"></MatchStatus>
+                <MatchStatus :matchData="matchData" class="flex-item"></MatchStatus>
+                <Standings :matchData="matchData" class="flex-item-2"></Standings>
             </div>
 
             <div class="flex-item-desktop full-height flex-container-vertical">
@@ -97,6 +98,7 @@ import UserList from "@/components/Match/UserList.vue";
 import MatchStatus from "@/components/Match/MatchStatus.vue";
 import Chat from "@/components/Match/Chat.vue";
 import MapPool from "@/components/Match/MapPool.vue";
+import Standings from "@/components/Match/Standings.vue";
 
 import ApiService from "@/api-service";
 
@@ -117,7 +119,8 @@ import { Socket } from "net";
         UserList,
         MatchStatus,
         Chat,
-        MapPool
+        MapPool,
+        Standings
     }
 })
 export default class Match extends Vue {
@@ -197,7 +200,7 @@ export default class Match extends Vue {
         this.socket.on("join-match-confirm", (inform: boolean) => {
             this.wasJoined = true;
             if (inform) {
-                swal("Success", "You have joined the match", "success");
+                swal("SÅ JA!", "You have joined the match", "success");
             }
         });
 
