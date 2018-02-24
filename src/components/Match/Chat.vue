@@ -2,7 +2,7 @@
     <div class="chat-container ui-container flex-container-vertical flex-item-2">
         <div class="flex-container flex-align-center flex-space-between ui-container-header">
             <h2 class="match-status-title">Chat</h2>
-            <span class="alt-label">{{ chatterCount }} <icon name="user"></icon></span>
+            <span class="alt-label">{{ chatterCount }} <font-awesome-icon :icon="userIcon" /></span>
         </div>
         <div class="ui-container-content flex-item flex-container-vertical">
             <div class="flex-item">
@@ -47,12 +47,14 @@ import swal from "sweetalert2";
 // @ts-ignore
 import VuePerfectScrollbar from 'vue-perfect-scrollbar';
 
-import Icon from "vue-awesome/components/Icon.vue";
-import "vue-awesome/icons/user"
+// @ts-ignore
+import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
+// @ts-ignore
+import { faUser } from '@fortawesome/fontawesome-free-solid'
 
 @Component({
     components: {
-        Icon,
+        FontAwesomeIcon,
         VuePerfectScrollbar
     },
     props: {
@@ -78,6 +80,10 @@ export default class Chat extends Vue {
 
     get getMessages() {
         return this.messages;
+    }
+
+    get userIcon() {
+        return faUser;
     }
 
     created() {

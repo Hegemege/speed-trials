@@ -3,7 +3,7 @@
         <div>
             <div class="ui-container-header flex-container flex-align-center flex-space-between">
                 <h2>Participants</h2>
-                <div class="alt-label">{{ userList.length }} <icon name="user"></icon></div>
+                <div class="alt-label">{{ userList.length }} <font-awesome-icon :icon="userIcon" /></div>
             </div>
         </div>
 
@@ -44,12 +44,14 @@ import swal from "sweetalert2";
 // @ts-ignore
 import VuePerfectScrollbar from 'vue-perfect-scrollbar';
 
-import Icon from "vue-awesome/components/Icon.vue";
-import "vue-awesome/icons/user"
+// @ts-ignore
+import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
+// @ts-ignore
+import { faUser } from '@fortawesome/fontawesome-free-solid'
 
 @Component({
     components: {
-        Icon,
+        FontAwesomeIcon,
         VuePerfectScrollbar
     },
     props: {
@@ -83,6 +85,10 @@ export default class UserList extends Vue {
         wheelSpeed: 0.33,
         suppressScrollX: true
     };
+
+    get userIcon() {
+        return faUser;
+    }
 
     readyStatusIndicator(user: any) {
         return user.ready ? "status-indicator-ready" : "status-indicator-not-ready";

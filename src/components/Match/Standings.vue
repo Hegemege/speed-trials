@@ -20,11 +20,16 @@ import swal from "sweetalert2";
         matchData: {
             default: {},
             type: Object
+        },
+        isHost: {
+            default: false,
+            type: Boolean
         }
     }
 })
 export default class Standings extends Vue {
     matchData: any;
+    isHost: any; // boolean
 
 }
 </script>

@@ -66,6 +66,7 @@
                     <button v-on:click="readyPressed"
                         :class="readyButtonClass"
                         class="small-button wide-button ready-button">
+                        <font-awesome-icon class="ready-icon" :icon="getReadyIcon" />
                     </button>
                 </div>
 
@@ -74,8 +75,8 @@
             <div class="content-divider-vertical"></div>
 
             <div class="flex-item-desktop full-height flex-container-vertical">
-                <MatchStatus :matchData="matchData" class="flex-item"></MatchStatus>
-                <Standings :matchData="matchData" class="flex-item-2"></Standings>
+                <MatchStatus :matchData="matchData" :isHost="isHost" class="flex-item"></MatchStatus>
+                <Standings :matchData="matchData" :isHost="isHost" class="flex-item-2"></Standings>
             </div>
 
             <div class="flex-item-desktop full-height flex-container-vertical">
@@ -104,9 +105,11 @@ import ApiService from "@/api-service";
 
 import swal from "sweetalert2";
 import io from "socket.io-client";
-import Icon from "vue-awesome/components/Icon.vue";
-import "vue-awesome/icons/check-circle"
-import "font-awesome/css/font-awesome.css";
+
+// @ts-ignore
+import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
+// @ts-ignore
+import { faCheckCircle, faTimesCircle } from '@fortawesome/fontawesome-free-solid'
 
 import { config } from "../config";
 import { Socket } from "net";
@@ -115,7 +118,7 @@ import { Socket } from "net";
     components: {
         OrbitSpinner,
         CustomCheckbox,
-        Icon,
+        FontAwesomeIcon,
         UserList,
         MatchStatus,
         Chat,
@@ -142,6 +145,10 @@ export default class Match extends Vue {
     private matchDataUpdatedTimestamp: number = 0;
     private socket: any;
     private selfDisconnected: boolean = false;
+
+    get getReadyIcon() {
+        return this.isReady ? faTimesCircle : faCheckCircle;
+    }
 
     get joined() {
         // If no user in data is marked as "you"
@@ -537,14 +544,13 @@ export default class Match extends Vue {
 }
 
 .ready-button {
+    .ready-icon {
+        margin-right: 0.5em;
+    }
+
     &.status-not-ready {
         color: $common-failure-color;
         border-color: $common-failure-color;
-
-        &:hover::before {
-            font-family: FontAwesome;
-            content: "\f058 ";
-        }
 
         &:hover {
             &::after {
@@ -555,12 +561,9 @@ export default class Match extends Vue {
             border-color: $common-success-color;
         }
 
-        /*
-        &:not(:hover)::before {
-            font-family: FontAwesome;
-            content: "\f057 ";
+        &:not(:hover) > svg {
+            display: none;
         }
-        */
 
         &:not(:hover)::after {
             content: "Not ready";
@@ -571,11 +574,6 @@ export default class Match extends Vue {
         color: $common-success-color;
         border-color: $common-success-color;
 
-        &:hover::before {
-            font-family: FontAwesome;
-            content: "\f057 ";
-        }
-
         &:hover {
             &::after {
                 content: "I am not ready!";
@@ -584,14 +582,11 @@ export default class Match extends Vue {
             color: $common-failure-color;
             border-color: $common-failure-color;
         }
-
-        /*
-        &:not(:hover)::before {
-            font-family: FontAwesome;
-            content: "\f058 ";
+        
+        &:not(:hover) > svg {
+            display: none;
         }
-        */
-
+        
         &:not(:hover)::after {
             content: "Ready";
         }

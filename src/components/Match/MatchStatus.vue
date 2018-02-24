@@ -7,8 +7,20 @@
         <div class="ui-container-content">
             <span>{{ matchStatusDescription }}</span>
         </div>
-        <div class="ui-container-sub-header">
+        <div class="ui-container-sub-header flex-container flex-align-center centered">
             <h3>Match settings</h3>
+            <span v-if="isHost" v-on:click="changeSettings" class="change-settings-button">Change</span>
+        </div>
+        <div class="match-settings-container">
+            <span class="settings-line">Number of maps: {{ mapsPlayed }}</span>
+            <span class="settings-line">
+                Scoring system: {{ scoringSystem }}
+                <div v-if="matchData.settings.scoringMode !== ''" 
+                     v-tooltip="{ content: scoringSystemTooltip }"
+                     class="settings-info-icon">
+                    <font-awesome-icon :icon="infoIcon" />
+                </div>
+            </span>
         </div>
     </div>
 </template>
@@ -16,19 +28,36 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 
+// @ts-ignore
+import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
+// @ts-ignore
+import { faQuestionCircle } from '@fortawesome/fontawesome-free-regular'
+
 import ApiService from "@/api-service";
 import swal from "sweetalert2";
 
 @Component({
+    components: {
+        FontAwesomeIcon
+    },
     props: {
         matchData: {
             default: {},
             type: Object
+        },
+        isHost: {
+            default: false,
+            type: Boolean
         }
     }
 })
 export default class MatchStatus extends Vue {
     matchData: any;
+    isHost: any; // boolean
+
+    get infoIcon() {
+        return faQuestionCircle;
+    }
 
     get matchStatusTitle() {
         if (!this.matchData) return "";
@@ -72,11 +101,64 @@ export default class MatchStatus extends Vue {
         }
     }
 
+    get mapsPlayed() {
+        return this.matchData.settings.mapsPlayed !== 0 ? this.matchData.settings.mapsPlayed : "Not set";
+    }
+
+    get scoringSystem() {
+        if (this.matchData.settings.scoringMode === "total") {
+            return "Total time";
+        } else if (this.matchData.settings.scoringMode === "individual") {
+            return "Map points";
+        }
+
+        return "Not set";
+    }
+
+    get scoringSystemTooltip() {
+        if (this.matchData.settings.scoringMode === "total") {
+            return "Score is calculated as the sum of lowest times of all maps. User with the lowest score (total time) wins.";
+        } else if (this.matchData.settings.scoringMode === "individual") {
+            return "Score is calculated based on standings for each map. User with the highest score wins.";
+        }
+
+        return "";
+    }
+
+    changeSettings() {
+
+    }
+
 }
 </script>
 
 <style scoped lang="scss">
 @import "../../main.scss";
 
+.change-settings-button {
+    margin-left: 1em;
+    margin-right: 1em;
+    color: $common-alt-color;
+
+    &:hover {
+        cursor: pointer;
+        color: $common-accent-color-lighter;
+    }
+}
+
+.match-settings-container {
+    padding: 0.5em;
+}
+
+.settings-line {
+    display: block;
+
+    .settings-info-icon {
+        display: inline;
+        font-family: FontAwesome;
+        margin-left: 0.2em;
+        color: $common-text-color-dark;
+    }
+}
 
 </style>
