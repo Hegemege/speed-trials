@@ -10,17 +10,29 @@
         <div class="ui-container-sub-header flex-container flex-align-center centered">
             <h3>Match settings</h3>
             <span v-if="isHost" v-on:click="changeSettings" class="change-settings-button">Change</span>
+            <sweet-modal ref="changeSettingsModal"
+                         title="Test"
+                         :hide-close-button="true" 
+                         overlay-theme="dark" 
+                         modal-theme="dark">
+                Test
+            </sweet-modal>
         </div>
         <div class="match-settings-container">
-            <span class="settings-line">Number of maps: {{ mapsPlayed }}</span>
-            <span class="settings-line">
-                Scoring system: {{ scoringSystem }}
-                <div v-if="matchData.settings.scoringMode !== ''" 
-                     v-tooltip="{ content: scoringSystemTooltip }"
-                     class="settings-info-icon">
-                    <font-awesome-icon :icon="infoIcon" />
+            <div class="settings-line flex-container flex-space-between">
+                <span>Number of maps:</span>
+                <span class="settings-line-setting">{{ mapsPlayed }}</span>
+            </div>
+            <div class="settings-line flex-container flex-space-between">
+                <span>Scoring system:</span>
+                <div class="flex-container flex-align-center">
+                     <div v-if="matchData.settings.scoringMode !== ''" 
+                     v-tooltip="{ content: scoringSystemTooltip }">
+                        <font-awesome-icon class="settings-info-icon" size="xs" :icon="infoIcon" />
+                     </div>
+                    <span class="settings-line-setting">{{ scoringSystem }}</span>
                 </div>
-            </span>
+            </div>
         </div>
     </div>
 </template>
@@ -36,9 +48,13 @@ import { faQuestionCircle } from '@fortawesome/fontawesome-free-regular'
 import ApiService from "@/api-service";
 import swal from "sweetalert2";
 
+// @ts-ignore
+import { SweetModal } from 'sweet-modal-vue'
+
 @Component({
     components: {
-        FontAwesomeIcon
+        FontAwesomeIcon,
+        SweetModal
     },
     props: {
         matchData: {
@@ -126,7 +142,8 @@ export default class MatchStatus extends Vue {
     }
 
     changeSettings() {
-
+        // @ts-ignore
+        this.$refs.changeSettingsModal.open();
     }
 
 }
@@ -151,12 +168,13 @@ export default class MatchStatus extends Vue {
 }
 
 .settings-line {
-    display: block;
+
+    .settings-line-setting {
+        color: $common-accent-color;
+    }
 
     .settings-info-icon {
-        display: inline;
-        font-family: FontAwesome;
-        margin-left: 0.2em;
+        margin-right: 0.5em;
         color: $common-text-color-dark;
     }
 }

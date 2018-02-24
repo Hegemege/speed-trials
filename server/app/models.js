@@ -12,7 +12,7 @@ class Match {
         this.private = true; // All matches are private by default
         this.settings = {
             mapsPlayed: 0,
-            scoringMode: "total", 
+            scoringMode: "", 
             // Scoring methods:
             //     total: Score is calculated as lowest total time across all maps
             //     individual: Score is calculated based on individual wins on each map. 

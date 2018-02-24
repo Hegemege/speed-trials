@@ -556,3 +556,34 @@ input[type="text"], textarea {
         transition: opacity .15s;
     }
 }
+
+
+/* sweet-modal-vue styling */
+#app {
+    .sweet-modal-overlay {
+        &.theme-dark {
+            background: rgba(0,0,0, 0.3);
+        }
+    }
+
+    .sweet-modal {
+        font-family: $font-family;
+        color: $common-text-color;
+
+        &.theme-dark {
+            background-color: $common-background-color-light;
+        }
+
+        .sweet-title {
+            height: auto;
+            padding: 0;
+            padding-top: 1em;
+            padding-bottom: 1em;
+            border: none;
+        }
+
+        .sweet-content {
+            padding: 1em;
+        }
+    }
+}
