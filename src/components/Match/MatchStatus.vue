@@ -7,6 +7,9 @@
         <div class="ui-container-content">
             <span>{{ matchStatusDescription }}</span>
         </div>
+        <div class="ui-container-sub-header">
+            <h3>Match settings</h3>
+        </div>
     </div>
 </template>
 
@@ -46,12 +49,26 @@ export default class MatchStatus extends Vue {
 
         if (this.matchData.started) {
             if (this.matchData.ended) {
-                return "Finished";
+                return "The match has concluded.";
             } else {
-                return "In progress";
+                return "The match is in progress.";
             }
         } else {
-            return "Waiting for more participants";
+            if (this.matchData.users.length < 2) {
+                return "Waiting for more participants.";
+            } else {
+                // Waiting for host to update settings
+                if (this.matchData.mapPool === "") return "Waiting for host to select map pool.";
+                //if (!this.matchData.settings) return "Waiting for host to decide match settings.";
+
+                // Ready status
+                let notReady = this.matchData.users.findIndex((user: any) => !user.ready);
+                if (notReady !== -1) {
+                    return "Waiting for all participants to be ready."
+                } else {
+                    "Waiting for host to start the match.";
+                }
+            }
         }
     }
 

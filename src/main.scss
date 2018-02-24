@@ -240,6 +240,12 @@ h2 {
     padding: 0.6em;
 }
 
+.ui-container-sub-header {
+    text-align: center;
+    padding: 0.5em;
+    background-color: $common-background-color-darker;
+}
+
 .ui-container-header .alt-label {
     color: $common-accent-color;
     font-size: 24px;

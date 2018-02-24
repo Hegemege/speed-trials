@@ -2,7 +2,7 @@
     <div class="map-pool-container ui-container spinner-container flex-item flex-container-vertical">
         <OrbitSpinner :show="$store.getters.getLocalSpinnerState('matchMapPool')"></OrbitSpinner>
         <div class="flex-container flex-align-center flex-space-between ui-container-header">
-            <h2 class="match-status-title">Map pool</h2>
+            <h2>Map pool</h2>
             <span class="alt-label">{{ chosenMapPool.name }}</span>
         </div>
         <div class="ui-container-content flex-item flex-container-vertical">
@@ -16,23 +16,31 @@
                 <span v-if="!anyMapPoolChosen">Waiting for host to choose a map pool for the match.</span>
             </div>
             <div v-if="anyMapPoolChosen" class="map-list-container flex-item flex-container-vertical">
-                <h3 class="map-list-header">Map list</h3>
+                <div class="ui-container-sub-header">
+                    <h3>Map list</h3>
+                </div>
                 <span class="map-list-instructions">{{ mapListInstructions }}</span>
                 <div class="content-divider-long"></div>
                 <VuePerfectScrollbar class="scroll-area flex-item" :settings="scrollbarSettings">
-                    <h4 class="map-list-sub-header">Open </h4>
+                    <div class="ui-container-sub-header map-list-sub-header">
+                        <h4>Open </h4>
+                    </div>
                     <draggable v-model="openMaps" 
                                :options="sortableOptions"
                                class="map-list">
                         <MapCard v-for="element in openMaps" :key="element" :mapName="element">{{element}}</MapCard>
                     </draggable>
-                    <h4 class="map-list-sub-header">Banned</h4>
+                    <div class="ui-container-sub-header map-list-sub-header">
+                        <h4>Banned</h4>
+                    </div>
                     <draggable v-model="bannedMaps" 
                                :options="sortableOptions"
                                class="map-list">
                         <MapCard v-for="element in bannedMaps" :key="element" :mapName="element">{{element}}</MapCard>
                     </draggable>
-                    <h4 class="map-list-sub-header">Picked</h4>
+                    <div class="ui-container-sub-header map-list-sub-header">
+                        <h4>Picked</h4>
+                    </div>
                     <draggable v-model="pickedMaps" 
                                :options="sortableOptions"
                                class="map-list">
@@ -207,23 +215,14 @@ export default class MapPool extends Vue {
             display: flex;
             flex-wrap: wrap;
             padding: 0.5em;
-            min-height: 1em;
+            min-height: 7em;
             border: 1px solid $common-alt-color-darker;
             background-color: $common-background-color-darker;
         }
 
-        .map-list-header {
-            text-align: center;
-            padding: 0.5em;
-            background-color: $common-background-color-darker;
-        }
-
         .map-list-sub-header {
-            text-align: center;
-            padding: 0.5em;
             margin-top: 0.5em;
             margin-bottom: 0.5em;
-            background-color: $common-background-color-darker;
             color: $common-accent-color;
 
             &:first-child {
