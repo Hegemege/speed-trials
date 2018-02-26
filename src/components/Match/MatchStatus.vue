@@ -11,11 +11,24 @@
             <h3>Match settings</h3>
             <span v-if="isHost" v-on:click="changeSettings" class="change-settings-button">Change</span>
             <sweet-modal ref="changeSettingsModal"
-                         title="Test"
+                         title="Change match settings"
                          :hide-close-button="true" 
                          overlay-theme="dark" 
                          modal-theme="dark">
-                Test
+                <div class="modal-row flex-container flex-space-between flex-align-center">
+                    <span class="modal-input-label">Number of maps:</span>
+                    <input type="text" ref="mapCountInput" class="modal-input modal-text-input" v-model="selectedNumberOfMaps">
+                </div>
+                <div class="modal-row flex-container flex-space-between flex-align-center">
+                    <span class="modal-input-label">Scoring system:</span>
+                    <select class="custom-ui-dropdown modal-input" v-model="selectedScoringSystem">
+                        <option value="total">Total time</option>
+                        <option value="individual">Map points</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button v-on:click="saveSettings()" class="small-button half-button">Save</button>
+                </div>
             </sweet-modal>
         </div>
         <div class="match-settings-container">
@@ -70,6 +83,9 @@ import { SweetModal } from 'sweet-modal-vue'
 export default class MatchStatus extends Vue {
     matchData: any;
     isHost: any; // boolean
+
+    private selectedNumberOfMaps: string = "";
+    private selectedScoringSystem: string = "";
 
     get infoIcon() {
         return faQuestionCircle;
@@ -144,6 +160,13 @@ export default class MatchStatus extends Vue {
     changeSettings() {
         // @ts-ignore
         this.$refs.changeSettingsModal.open();
+    }
+
+    saveSettings() {
+        // @ts-ignore
+        this.$refs.changeSettingsModal.close();
+        
+        console.log(this.selectedNumberOfMaps, this.selectedScoringSystem);
     }
 
 }
