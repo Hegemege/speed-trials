@@ -1,5 +1,7 @@
+npm install
 npm run build-prod
 cd server
+npm install
 npm run build-prod
 cd ..
 cp -R server/dist/. /var/www/speed-trials
