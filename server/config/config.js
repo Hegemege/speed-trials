@@ -61,7 +61,7 @@ module.exports = {
         // Twitch integration
         twitchClientId: "t08oapd7t98m8beu2nykszvxv07o7f",
         twitchClientSecret: secrets["production"]["twitchClientSecret"],
-        twitchClientCallbackUri: "https://trials.speedrunbets.com/auth/twitch/callback",
+        twitchClientCallbackUri: "https://jkruns.tk/auth/twitch/callback",
         twitchScope: "user_read",
 
         // Cookie secret

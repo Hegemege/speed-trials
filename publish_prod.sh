@@ -7,5 +7,5 @@ cd ..
 cp -R server/dist/. /var/www/speed-trials
 rm -rf /var/www/speed-trials/static
 cp -R dist/. /var/www/speed-trials/static
-pm2 restart speedtrials
+pm2 restart speed-trials
 

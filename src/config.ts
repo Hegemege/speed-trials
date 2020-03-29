@@ -1,7 +1,7 @@
 let baseUrl = "";
 
 if (process.env.NODE_ENV === "production") {
-    baseUrl = "https://trials.speedrunbets.com";
+    baseUrl = "https://jkruns.tk";
 } else {
     baseUrl = "http://localhost:8081";
 }
