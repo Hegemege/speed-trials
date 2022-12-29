@@ -32,12 +32,12 @@
         "sweet-modal-vue": "2.0.0"
     },
     "devDependencies": {
-        "@vue/cli-plugin-babel": "^3.0.0-alpha.8",
+        "@vue/cli-plugin-babel": "^3.12.1",
         "@vue/cli-plugin-pwa": "^3.0.0-alpha.8",
-        "@vue/cli-plugin-typescript": "^3.0.0-alpha.8",
-        "@vue/cli-service": "^3.0.0-alpha.8",
+        "@vue/cli-plugin-typescript": "^5.0.8",
+        "@vue/cli-service": "^3.12.1",
         "node-sass": "^4.7.2",
-        "sass-loader": "^6.0.6",
+        "sass-loader": "^13.2.0",
         "vue-class-component": "^6.0.0",
         "vue-property-decorator": "^6.0.0",
         "vue-template-compiler": "^2.5.13"
