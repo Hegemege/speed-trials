@@ -46,7 +46,7 @@
     "nodemon": "^1.11.0",
     "rimraf": "^2.6.0",
     "cross-env": "^1.0.7",
-    "webpack": "3.11.0",
+    "webpack": "5.75.0",
     "stats-webpack-plugin": "0.6.2"
   }
 }
